@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test — Auto Load</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;800;900&family=Barlow+Condensed:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header"><h1 class="header__title">I NOSTRI CLIENTI</h1></header>
+  <div id="upload-section">
+    <div id="drop-zone">Auto-loading...</div>
+    <p id="upload-status"></p>
+    <button id="btn-genera" style="display:none">Genera Mappa</button>
+  </div>
+  <main class="dashboard">
+    <aside class="sidebar">
+      <section class="panel panel--dimensioni" id="dimensioni"><h2 class="panel__heading">DIMENSIONI</h2></section>
+      <section class="panel panel--settore" id="settore"><h2 class="panel__heading">SETTORE</h2></section>
+    </aside>
+    <section class="map-container" id="distribuzione"><h2 class="panel__heading">DISTRIBUZIONE</h2></section>
+  </main>
+  <footer class="footer"><span class="footer__logo">LEYTON ESG</span></footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    fetch('Data/Clienti Leyton MVP.xlsx')
+      .then(function(r){ return r.arrayBuffer(); })
+      .then(function(buf){
+        var data = new Uint8Array(buf);
+        var wb = XLSX.read(data, {type:'array'});
+        var sn = wb.SheetNames.includes('Clienti Leyton') ? 'Clienti Leyton' : wb.SheetNames[0];
+        var rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], {defval:''});
+        if(rows.length>0){
+          var k=Object.keys(rows[0]), lc=k[k.length-1];
+          if(lc!=='Settore'){
+            rows=rows.map(function(r){var n=Object.assign({},r);n.Settore=n[lc];delete n[lc];return n;});
+          }
+        }
+        rows=rows.filter(function(r){var n=(r['Account Name']||'').toUpperCase();return !['SEGNALATORE','PARTNERSHIP'].some(function(kw){return n.indexOf(kw)!==-1;});});
+        window.clientiData = rows;
+        document.getElementById('upload-status').textContent = 'Auto: '+rows.length+' clienti';
+        renderAll();
+      })
+      .catch(function(e){ console.error('FETCH ERR', e); });
+  </script>
+</body>
+</html>

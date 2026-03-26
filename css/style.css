@@ -1,0 +1,495 @@
+/* ═══════════════════════════════════════════
+   Leyton ESG — Mappa Clienti
+   Step 1: CSS Custom Properties & Reset
+   ═══════════════════════════════════════════ */
+
+/* ── Design Tokens ── */
+:root {
+  --blue:   #002c49;
+  --green:  #7ebd4b;
+  --bg:     #f3f4f6;
+  --map:    #cdd5dc;
+  --shadow: #6a8093;
+  --mid:    #9cabb6;
+  --dark:   #526d81;
+  --white:  #ffffff;
+}
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Body generale */
+body {
+  font-family: 'Barlow', sans-serif;
+  color: var(--blue);
+  background: #dde2e7;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px;
+  gap: 28px;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* ═══════════════════════════════════════════
+   Step 2: Upload Section
+   ═══════════════════════════════════════════ */
+
+/* Upload section */
+#upload-section {
+  background: white;
+  border-radius: 18px;
+  padding: 48px 56px;
+  text-align: center;
+  box-shadow: 0 6px 32px rgba(0,44,73,0.12);
+  max-width: 480px;
+  width: 100%;
+}
+
+#drop-zone {
+  border: 2px dashed var(--map);
+  border-radius: 12px;
+  padding: 36px 24px;
+  cursor: pointer;
+  color: var(--shadow);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+#drop-zone label {
+  color: var(--green);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+#drop-zone:hover {
+  border-color: var(--green);
+  background-color: #f8fff3;
+}
+
+#btn-genera {
+  background: var(--green);
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.2s;
+}
+
+#btn-genera:hover {
+  background: #6aaa3e;
+}
+
+#upload-status {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+/* ═══════════════════════════════════════════
+   Step 6: Struttura Card & Layout a 2 colonne
+   ═══════════════════════════════════════════ */
+
+/* Card contenitore */
+.card {
+  background: #f3f4f6;
+  border-radius: 20px;
+  padding: 36px 40px 28px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 8px 40px rgba(0,44,73,0.13);
+}
+
+/* Header */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 34px;
+  font-weight: 900;
+  color: #002c49;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.header-stripes {
+  flex: 1;
+  height: 14px;
+  background: repeating-linear-gradient(
+    65deg,
+    #7ebd4b 0, #7ebd4b 5px,
+    transparent 5px, transparent 13px
+  );
+  border-radius: 3px;
+  opacity: 0.9;
+}
+
+/* Body a due colonne */
+.card-body {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 40px;
+}
+
+/* Label sezione */
+.section-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #7ebd4b;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* Footer */
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e5ea;
+}
+.leyton-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #002c49;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.logo-o { color: #7ebd4b; }
+.logo-esg {
+  font-weight: 400;
+  margin-left: 5px;
+  color: #7ebd4b;
+}
+
+/* ═══════════════════════════════════════════
+   Step 3: Sezione DIMENSIONI — Donut Chart
+   ═══════════════════════════════════════════ */
+
+.dim-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.dim-donut-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 160px;
+  height: 160px;
+}
+
+.dim-donut-wrap svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dim-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dim-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dim-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--blue);
+  line-height: 1;
+  min-width: 52px;
+}
+
+.dim-desc {
+  display: flex;
+  flex-direction: column;
+}
+
+.dim-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.dim-sub {
+  font-size: 9px;
+  color: var(--shadow);
+}
+
+/* SVG donut text */
+.donut-total {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  fill: var(--blue);
+  text-anchor: middle;
+}
+
+.donut-label {
+  font-family: 'Barlow', sans-serif;
+  font-size: 9px;
+  fill: var(--blue);
+  text-anchor: middle;
+}
+
+/* ═══════════════════════════════════════════
+   Step 4: Sezione SETTORE — Griglia Icone
+   ═══════════════════════════════════════════ */
+
+.settore-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+
+.settore-tile {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 10px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+  transition: box-shadow 0.2s;
+}
+
+.settore-tile:hover {
+  box-shadow: 0 4px 14px rgba(0,44,73,0.12);
+}
+
+.settore-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--bg);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settore-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.settore-name {
+  font-size: 8.5px;
+  font-weight: 800;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.settore-count {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.settore-tile.zero {
+  opacity: 0.35;
+}
+
+/* ═══════════════════════════════════════════
+   Step 5: Sezione DISTRIBUZIONE
+   ═══════════════════════════════════════════ */
+
+.distrib-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.distrib-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.distrib-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.distrib-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--blue);
+  line-height: 1;
+}
+
+.distrib-word {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.distrib-place {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-top: 2px;
+}
+
+.distrib-intl-names {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.distrib-intl-co {
+  font-size: 10px;
+  color: var(--shadow);
+}
+
+.distrib-map {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.distrib-map svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ═══════════════════════════════════════════
+   Step 6: Reset Overrides Appended
+   ═══════════════════════════════════════════ */
+
+body { background:#dde2e7; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:32px 20px; gap:28px; }
+#upload-section { background:white; border-radius:18px; padding:48px 56px; text-align:center; box-shadow:0 6px 32px rgba(0,44,73,.12); max-width:480px; width:100%; }
+#drop-zone { border:2px dashed #cdd5dc; border-radius:12px; padding:36px 24px; cursor:pointer; color:#6a8093; }
+#drop-zone label { color:#7ebd4b; font-weight:700; cursor:pointer; text-decoration:underline; }
+#drop-zone:hover, #drop-zone.drag-over { border-color:#7ebd4b; background:#f8fff3; }
+#upload-status { color:#7ebd4b; font-weight:700; font-size:13px; margin-top:10px; }
+#btn-genera { background:#7ebd4b; color:white; font-family:'Barlow',sans-serif; font-weight:800; font-size:14px; letter-spacing:1px; text-transform:uppercase; padding:12px 32px; border:none; border-radius:10px; cursor:pointer; margin-top:12px; }
+#btn-genera:hover { background:#6aaa3e; }
+.card { background:#f3f4f6; border-radius:20px; padding:36px 40px 28px; max-width:1100px; width:100%; margin:0 auto; box-shadow:0 8px 40px rgba(0,44,73,.13); }
+.card-header { display:flex; align-items:center; gap:20px; margin-bottom:32px; }
+.card-title { font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:900; color:#002c49; text-transform:uppercase; letter-spacing:1.5px; white-space:nowrap; flex-shrink:0; }
+.header-stripes { flex:1; height:14px; background:repeating-linear-gradient(65deg,#7ebd4b 0,#7ebd4b 5px,transparent 5px,transparent 13px); border-radius:3px; opacity:.9; }
+.card-body { display:grid; grid-template-columns:1fr 1.05fr; gap:40px; }
+.section-label { font-size:10px; font-weight:800; color:#7ebd4b; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px; }
+.card-footer { display:flex; justify-content:flex-end; margin-top:28px; padding-top:16px; border-top:1px solid #e0e5ea; }
+.leyton-logo { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; color:#002c49; letter-spacing:2px; text-transform:uppercase; }
+.logo-o { color:#7ebd4b; }
+.logo-esg { font-weight:400; margin-left:5px; color:#7ebd4b; }
+.dim-inner { display:flex; align-items:center; gap:24px; }
+.dim-donut-wrap { position:relative; flex-shrink:0; width:160px; height:160px; }
+.dim-donut-wrap svg { width:160px; height:160px; }
+.dim-list { display:flex; flex-direction:column; gap:10px; }
+.dim-row { display:flex; align-items:center; gap:10px; }
+.dim-num { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; color:#002c49; line-height:1; min-width:52px; }
+.dim-desc { display:flex; flex-direction:column; }
+.dim-label { font-size:10px; font-weight:700; color:#002c49; }
+.dim-sub { font-size:9px; color:#6a8093; }
+.settore-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+.settore-tile { background:white; border-radius:10px; padding:10px 6px 8px; display:flex; flex-direction:column; align-items:center; gap:5px; text-align:center; }
+.settore-tile:hover { box-shadow:0 4px 14px rgba(0,44,73,.12); }
+.settore-icon { width:40px; height:40px; background:#f3f4f6; border-radius:8px; display:flex; align-items:center; justify-content:center; }
+.settore-icon img { width:24px; height:24px; object-fit:contain; }
+.settore-name { font-size:8.5px; font-weight:800; color:#002c49; text-transform:uppercase; letter-spacing:.5px; }
+.settore-count { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:#7ebd4b; }
+.settore-tile.zero { opacity:.35; }
+.distrib-body { display:flex; align-items:flex-start; gap:16px; }
+.distrib-labels { display:flex; flex-direction:column; flex-shrink:0; padding-top:16px; }
+.distrib-item { padding:10px 0; border-bottom:1px solid #e0e5e9; }
+.distrib-item:last-child { border-bottom:none; }
+.distrib-num { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:900; color:#002c49; line-height:1; }
+.distrib-word { font-size:9px; font-weight:700; color:#002c49; }
+.distrib-place { font-size:9px; color:#6a8093; }
+.distrib-intl-co { font-size:8px; color:#526d81; line-height:1.8; }
+.distrib-map { flex:1; }
+.distrib-map svg { width:100%; max-width:210px; height:auto; }
+
+.dim-donut-wrap {
+  position: relative;
+}
+.donut-total {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #7ebd4b;
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.donut-label {
+  font-family: 'Barlow', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  color: #002c49;
+  margin-top: 2px;
+}

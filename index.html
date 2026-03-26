@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leyton ESG — Mappa Clienti</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <div id="upload-section">
+    <div id="drop-zone">
+      Trascina qui il file Excel oppure
+      <label for="file-input">clicca per selezionare</label>
+      <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
+    </div>
+    <p id="upload-status"></p>
+    <button id="btn-genera" style="display:none">Genera Mappa</button>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="card">
+
+      <div class="card-header">
+        <h1 class="card-title">I Nostri Clienti</h1>
+        <div class="header-stripes"></div>
+      </div>
+
+      <div class="card-body">
+        <div class="col-left">
+          <div class="section-label">Dimensioni</div>
+          <div id="dimensioni"></div>
+          <div class="section-label" style="margin-top:28px">Settore</div>
+          <div id="settore"></div>
+        </div>
+        <div class="col-right">
+          <div class="section-label">Distribuzione</div>
+          <div id="distribuzione"></div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="leyton-logo">
+          LEYT<span class="logo-o">O</span>N
+          <span class="logo-esg">ESG</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

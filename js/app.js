@@ -1,0 +1,198 @@
+window.clientiData = [];
+
+// ── UPLOAD ──────────────────────────────────────
+const fileInput = document.getElementById('file-input');
+const dropZone  = document.getElementById('drop-zone');
+const btnGenera = document.getElementById('btn-genera');
+const uploadStatus = document.getElementById('upload-status');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+btnGenera.addEventListener('click', renderAll);
+
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+    const sheetName = wb.SheetNames.includes('Sheet1') ? 'Sheet1' : wb.SheetNames[0];
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName]);
+    window.clientiData = rows.filter(r => {
+      const name = String(r['Account Name'] || '');
+      return !name.includes('SEGNALATORE') && !name.includes('PARTNERSHIP');
+    });
+    uploadStatus.textContent = '✓ Caricati ' + window.clientiData.length + ' clienti da ' + file.name;
+    btnGenera.style.display = 'block';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── RENDER ALL ──────────────────────────────────
+function renderAll() {
+  document.getElementById('upload-section').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderDimensioni();
+  renderSettori();
+  renderDistribuzione();
+}
+
+// ── DIMENSIONI ──────────────────────────────────
+function renderDimensioni() {
+  const dati = window.clientiData;
+  const total = dati.length;
+  let grandi = 0, medie = 0, piccole = 0, micro = 0;
+  dati.forEach(r => {
+    const emp = parseFloat(r['Employees']);
+    if (isNaN(emp)) return;
+    if (emp > 250)       grandi++;
+    else if (emp >= 50)  medie++;
+    else if (emp >= 10)  piccole++;
+    else                 micro++;
+  });
+
+  const segmenti = [
+    { val: grandi,  color: '#002c49', label: 'grandi imprese',  sub: '(>250 dipendenti)'   },
+    { val: medie,   color: '#526d81', label: 'medie imprese',   sub: '(50-250 dipendenti)' },
+    { val: piccole, color: '#9cabb6', label: 'piccole imprese', sub: '(10-49 dipendenti)'  },
+    { val: micro,   color: '#cdd5dc', label: 'micro imprese',   sub: '(<10 dipendenti)'    },
+  ];
+
+  const circ = 2 * Math.PI * 60;
+  const gap = 4;
+  let offset = circ / 4;
+  let archi = '';
+  segmenti.forEach(s => {
+    const dash = (s.val / total) * (circ - gap * 4);
+    archi += `<circle cx="80" cy="80" r="60" fill="none"
+      stroke="${s.color}" stroke-width="18"
+      stroke-dasharray="${dash} ${circ - dash}"
+      stroke-dashoffset="${offset}"
+      transform="rotate(-90 80 80)"/>`;
+    offset -= (dash + gap);
+  });
+
+  const lista = segmenti.map(s => `
+    <div class="dim-row">
+      <span class="dim-num">${s.val}</span>
+      <div class="dim-desc">
+        <span class="dim-label">${s.label}</span>
+        <span class="dim-sub">${s.sub}</span>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('dimensioni').innerHTML = `
+    <div class="dim-inner">
+      <div class="dim-donut-wrap">
+        <img src="assets/Donut.png" alt="Donut chart" style="width:160px; height:160px; object-fit:contain; display:block;">
+        <div class="donut-total">${total}<span class="donut-label">aziende</span></div>
+      </div>
+      <div class="dim-list">${lista}</div>
+    </div>`;
+}
+
+// ── SETTORI ─────────────────────────────────────
+function renderSettori() {
+  const SETTORI = [
+    { key:'ALIMENTARE',       label:'Alimentare',     icon:'menu_alimentari.png'              },
+    { key:'AUTOMOTIVE',       label:'Automotive',     icon:'menu_automotive.png'              },
+    { key:'CHIMICO',          label:'Chimico',        icon:'menu_chimico.png'                 },
+    { key:'COMMERCIO',        label:'Commercio',      icon:'menu_commercio.png'               },
+    { key:'CONSULENZA',       label:'Consulenza',     icon:'menu_consulenza.png'              },
+    { key:'COSTRUZIONI',      label:'Costruzioni',    icon:'menu_costruzioni.png'             },
+    { key:'FARMACEUTICO',     label:'Pharma',         icon:'menu_pharma.png'                  },
+    { key:'HORECA',           label:'Ho.re.ca.',      icon:'menu_horeca.png'                  },
+    { key:'IT',               label:'IT',             icon:'menu_it.png'                      },
+    { key:'MANIFATTURIERO',   label:'Manifatturiero', icon:'menu_manifatturiero.png'          },
+    { key:'MODA',             label:'Moda',           icon:'menu_moda.png'                    },
+    { key:'RICERCA',          label:'Ricerca',        icon:'menu_ricerca.png'                 },
+    { key:'SALUTE',           label:'Salute',         icon:'menu_salute.png'                  },
+    { key:'SERVIZI',          label:'Servizi',        icon:'menu_servizi.png'                 },
+    { key:'TELECOMUNICAZIONI',label:'Telecom.',       icon:'menu_telecomunicazioni.png'       },
+    { key:'TRASPORTI',        label:'Trasporti',      icon:'menu_trasporti.png'               },
+  ];
+
+  const conteggi = {};
+  window.clientiData.forEach(r => {
+    const m = String(r['Mapping'] || '').trim().toUpperCase();
+    if (m) conteggi[m] = (conteggi[m] || 0) + 1;
+  });
+
+  const tiles = SETTORI.map(s => {
+    const cnt = conteggi[s.key] || 0;
+    return `<div class="settore-tile${cnt === 0 ? ' zero' : ''}">
+      <div class="settore-icon">
+        <img src="assets/icons/${s.icon}" alt="${s.label}">
+      </div>
+      <div class="settore-name">${s.label}</div>
+      <div class="settore-count">${cnt > 0 ? cnt : '—'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('settore').innerHTML =
+    `<div class="settore-grid">${tiles}</div>`;
+}
+
+// ── DISTRIBUZIONE ───────────────────────────────
+function renderDistribuzione() {
+  const NORD = new Set(['lombardia','veneto','piemonte','emilia-romagna',
+    'emilia romagna','liguria','trentino-alto adige','trento','bolzano',
+    'friuli venezia giulia',"valle d'aosta",'aosta']);
+  const CENTRO = new Set(['toscana','lazio','umbria','marche']);
+  const SUD = new Set(['campania','puglia','calabria','sicilia','sardegna',
+    'basilicata','molise','abruzzo']);
+
+  let nord = 0, centro = 0, sud = 0, intl = 0;
+  const intlNomi = [];
+
+  window.clientiData.forEach(r => {
+    const s = String(r['Billing State/Province (text only)'] || '').trim().toLowerCase();
+    if (!s) return;
+    if (NORD.has(s))        nord++;
+    else if (CENTRO.has(s)) centro++;
+    else if (SUD.has(s))    sud++;
+    else {
+      intl++;
+      if (intlNomi.length < 5) intlNomi.push(String(r['Account Name'] || '').toUpperCase());
+    }
+  });
+
+  const nomiHtml = intlNomi.map(n =>
+    `<div class="distrib-intl-co">— ${n}</div>`).join('');
+
+  document.getElementById('distribuzione').innerHTML = `
+    <div class="distrib-body">
+      <div class="distrib-labels">
+        <div class="distrib-item">
+          <div class="distrib-num">${nord}</div>
+          <div class="distrib-word">aziende</div>
+          <div class="distrib-place">Nord Italia</div>
+        </div>
+        <div class="distrib-item">
+          <div class="distrib-num">${centro}</div>
+          <div class="distrib-word">aziende</div>
+          <div class="distrib-place">Centro Italia</div>
+        </div>
+        <div class="distrib-item">
+          <div class="distrib-num">${sud}</div>
+          <div class="distrib-word">aziende</div>
+          <div class="distrib-place">Sud Italia e Isole</div>
+        </div>
+        <div class="distrib-item">
+          <div class="distrib-num">${intl}</div>
+          <div class="distrib-word">aziende</div>
+          <div class="distrib-place">Internazionali</div>
+        </div>
+      </div>
+      <div class="distrib-map">
+        <img src="assets/italy-map.png" alt="Mappa Italia" style="width:100%; max-width:260px; height:auto; display:block;">
+      </div>
+    </div>`;
+}
