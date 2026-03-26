@@ -287,10 +287,6 @@ function mostraPopupRegione(nomeRegione) {
     'veneto': 'veneto',
   };
 
-  const container = document.getElementById('mappa-container');
-  let popup = document.getElementById('regione-popup');
-  if (popup) popup.remove();
-
   const mappedName = MAPPING_REGIONI[nomeRegione] || nomeRegione;
   const aziendeRegione = window.clientiData.filter(c => 
     c['Billing State/Province (text only)'] && 
@@ -301,25 +297,67 @@ function mostraPopupRegione(nomeRegione) {
   aziendeRegione.forEach(c => {
     let prov = c['Province'] ? String(c['Province']).trim() : 'Sconosciuta';
     if (!byProvincia[prov]) byProvincia[prov] = [];
-    byProvincia[prov].push(c['Account Name'] || 'Azienda Senza Nome');
+    byProvincia[prov].push({
+      nome: c['Account Name'] || 'Azienda Senza Nome',
+      settore: c['Mapping'] || ''
+    });
   });
 
   const provinceOrdinate = Object.keys(byProvincia).sort((a,b) => a.localeCompare(b));
 
+  const ICONE_SETTORE = {
+    'ALIMENTARE':      'elenco/elenco_alimentare.svg',
+    'AUTOMOTIVE':      'elenco/elenco_automotive.svg',
+    'CHIMICO':         'elenco/elenco_chimico.svg',
+    'COMMERCIO':       'elenco/elenco_commercio.svg',
+    'CONSULENZA':      'elenco/elenco_consulenza.svg',
+    'COSTRUZIONI':     'elenco/elenco_costruzioni.svg',
+    'FARMACEUTICO':    'elenco/elenco_pharma.svg',
+    'HORECA':          'elenco/elenco_horeca.svg',
+    'IT':              'elenco/elenco_it.svg',
+    'MANIFATTURIERO':  'elenco/elenco_manifatturiero.svg',
+    'MODA':            'elenco/elenco_moda.svg',
+    'RICERCA':         'elenco/elenco_ricerca.svg',
+    'SALUTE':          'elenco/elenco_salute.svg',
+    'SERVIZI':         'elenco/elenco_servizi.svg',
+    'TELECOMUNICAZIONI':'elenco/elenco_telecomunicazioni.svg',
+    'TRASPORTI':       'elenco/elenco_trasporti.svg',
+  };
+
   let htmlBody = '';
   provinceOrdinate.forEach(prov => {
-    // Prima lettera maiuscola, o uppercase come nel mockup
     htmlBody += `<div class="popup-provincia">
-      <div class="popup-provincia-nome">${prov.charAt(0).toUpperCase() + prov.slice(1).toLowerCase()}</div>`;
+      <div class="popup-provincia-nome">${prov.toUpperCase()}</div>`;
     
-    const aziende = byProvincia[prov].sort((a,b) => a.localeCompare(b));
+    const aziende = byProvincia[prov].sort((a,b) => a.nome.localeCompare(b.nome));
     aziende.forEach(a => {
-      htmlBody += `<div class="popup-azienda">${a}</div>`;
+      const iconaPath = ICONE_SETTORE[a.settore.toUpperCase()];
+      const iconaHtml = iconaPath ? `<img src="assets/icons/${iconaPath}" class="popup-azienda-icon">` : `<div></div>`;
+      htmlBody += `<div class="popup-azienda">
+        ${iconaHtml}
+        ${a.nome}
+      </div>`;
     });
     htmlBody += `</div>`;
   });
 
-  popup = document.createElement('div');
+  function chiudiPopup() {
+    document.getElementById('popup-overlay')?.remove();
+    document.getElementById('regione-popup')?.remove();
+    // Reset colore regione attiva
+    d3.selectAll('.distrib-map path').attr('fill', '#cdd5dc');
+  }
+
+  // Se presenti dal precedente click, assicura la rimozione
+  chiudiPopup();
+
+  // Crea overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'popup-overlay';
+  overlay.addEventListener('click', chiudiPopup);
+
+  // Crea modale
+  const popup = document.createElement('div');
   popup.id = 'regione-popup';
   popup.innerHTML = `
     <div class="popup-header">
@@ -332,10 +370,8 @@ function mostraPopupRegione(nomeRegione) {
     </div>
   `;
 
-  popup.querySelector('.popup-close').addEventListener('click', () => {
-    popup.remove();
-    d3.selectAll('.distrib-map path').attr('fill', '#cdd5dc');
-  });
+  popup.querySelector('.popup-close').addEventListener('click', chiudiPopup);
 
-  container.appendChild(popup);
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
 }
