@@ -242,7 +242,7 @@ async function buildRegioni() {
     })
     .on('mouseover', function() {
       if (this !== regioneAttiva) {
-        d3.select(this).attr('fill', '#a8c96e');
+        d3.select(this).attr('fill', '#7ebd4b');
       }
     })
     .on('mouseout', function() {
@@ -257,8 +257,85 @@ async function buildRegioni() {
       // Colora quella cliccata
       d3.select(this).attr('fill', '#7ebd4b');
       regioneAttiva = this;
-      console.log('Regione cliccata:', nome);
+      mostraPopupRegione(nome);
     });
 
   container.appendChild(svg.node());
+}
+
+function mostraPopupRegione(nomeRegione) {
+  const MAPPING_REGIONI = {
+    'abruzzo': 'abruzzo',
+    'basilicata': 'basilicata',
+    'calabria': 'calabria',
+    'campania': 'campania',
+    'emilia-romagna': 'emilia-romagna',
+    'friuli-venezia giulia': 'friuli venezia giulia',
+    'lazio': 'lazio',
+    'liguria': 'liguria',
+    'lombardia': 'lombardia',
+    'marche': 'marche',
+    'molise': 'molise',
+    'piemonte': 'piemonte',
+    'puglia': 'puglia',
+    'sardegna': 'sardegna',
+    'sicilia': 'sicilia',
+    'toscana': 'toscana',
+    'trentino-alto adige': 'trento',
+    'umbria': 'umbria',
+    "valle d'aosta": "valle d'aosta",
+    'veneto': 'veneto',
+  };
+
+  const container = document.getElementById('mappa-container');
+  let popup = document.getElementById('regione-popup');
+  if (popup) popup.remove();
+
+  const mappedName = MAPPING_REGIONI[nomeRegione] || nomeRegione;
+  const aziendeRegione = window.clientiData.filter(c => 
+    c['Billing State/Province (text only)'] && 
+    c['Billing State/Province (text only)'].toLowerCase() === mappedName
+  );
+
+  const byProvincia = {};
+  aziendeRegione.forEach(c => {
+    let prov = c['Province'] ? String(c['Province']).trim() : 'Sconosciuta';
+    if (!byProvincia[prov]) byProvincia[prov] = [];
+    byProvincia[prov].push(c['Account Name'] || 'Azienda Senza Nome');
+  });
+
+  const provinceOrdinate = Object.keys(byProvincia).sort((a,b) => a.localeCompare(b));
+
+  let htmlBody = '';
+  provinceOrdinate.forEach(prov => {
+    // Prima lettera maiuscola, o uppercase come nel mockup
+    htmlBody += `<div class="popup-provincia">
+      <div class="popup-provincia-nome">${prov.charAt(0).toUpperCase() + prov.slice(1).toLowerCase()}</div>`;
+    
+    const aziende = byProvincia[prov].sort((a,b) => a.localeCompare(b));
+    aziende.forEach(a => {
+      htmlBody += `<div class="popup-azienda">${a}</div>`;
+    });
+    htmlBody += `</div>`;
+  });
+
+  popup = document.createElement('div');
+  popup.id = 'regione-popup';
+  popup.innerHTML = `
+    <div class="popup-header">
+      <div class="popup-titolo">${nomeRegione.toUpperCase()}</div>
+      <div class="popup-count">${aziendeRegione.length} <span>aziende</span></div>
+      <button class="popup-close">✕</button>
+    </div>
+    <div class="popup-body">
+      ${htmlBody}
+    </div>
+  `;
+
+  popup.querySelector('.popup-close').addEventListener('click', () => {
+    popup.remove();
+    d3.selectAll('.distrib-map path').attr('fill', '#cdd5dc');
+  });
+
+  container.appendChild(popup);
 }
