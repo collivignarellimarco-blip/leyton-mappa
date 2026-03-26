@@ -191,8 +191,74 @@ function renderDistribuzione() {
           <div class="distrib-place">Internazionali</div>
         </div>
       </div>
-      <div class="distrib-map">
-        <img src="assets/italy-map.png" alt="Mappa Italia" style="width:100%; max-width:260px; height:auto; display:block;">
+      <div class="distrib-map" id="mappa-container">
+        <img src="assets/italy-map.png" alt="Mappa Italia" style="display:block; width:100%; max-width:260px;">
       </div>
     </div>`;
+  buildRegioni();
+}
+
+async function buildRegioni() {
+  const container = document.getElementById('mappa-container');
+  container.innerHTML = '';
+  container.style.position = 'relative';
+
+  const geojson = await fetch('assets/italy-regions.json').then(r => r.json());
+
+  const width = 260;
+  const height = 440;
+
+  const projection = d3.geoMercator().fitSize([width, height], geojson);
+  const path = d3.geoPath().projection(projection);
+
+  const svg = d3.create('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .attr('width', width)
+    .attr('height', height)
+    .style('display', 'block');
+
+  svg.append('defs').html(`
+    <filter id="mapShadow">
+      <feDropShadow dx="3" dy="3" stdDeviation="2"
+        flood-color="#6a8093" flood-opacity="0.5"/>
+    </filter>
+  `);
+
+  let regioneAttiva = null;
+
+  svg.append('g')
+    .attr('filter', 'url(#mapShadow)')
+    .selectAll('path')
+    .data(geojson.features)
+    .join('path')
+    .attr('d', path)
+    .attr('fill', '#cdd5dc')
+    .attr('stroke', '#b8c6cf')
+    .attr('stroke-width', 0.5)
+    .style('cursor', 'pointer')
+    .attr('data-regione', d => {
+      const nome = d.properties.NAME_1 || d.properties.reg_name || d.properties.name || '';
+      return nome.toLowerCase();
+    })
+    .on('mouseover', function() {
+      if (this !== regioneAttiva) {
+        d3.select(this).attr('fill', '#a8c96e');
+      }
+    })
+    .on('mouseout', function() {
+      if (this !== regioneAttiva) {
+        d3.select(this).attr('fill', '#cdd5dc');
+      }
+    })
+    .on('click', function(event, d) {
+      const nome = d3.select(this).attr('data-regione');
+      // Reset tutte le regioni
+      svg.selectAll('path').attr('fill', '#cdd5dc');
+      // Colora quella cliccata
+      d3.select(this).attr('fill', '#7ebd4b');
+      regioneAttiva = this;
+      console.log('Regione cliccata:', nome);
+    });
+
+  container.appendChild(svg.node());
 }

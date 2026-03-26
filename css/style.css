@@ -493,3 +493,18 @@ body { background:#dde2e7; min-height:100vh; display:flex; flex-direction:column
   color: #002c49;
   margin-top: 2px;
 }
+
+.distrib-map {
+  position: relative;
+  display: inline-block;
+}
+.region-overlay {
+  position: absolute;
+  cursor: pointer;
+}
+.region-overlay path {
+  transition: fill 0.2s ease;
+}
+.region-overlay:hover path {
+  fill: #a8c96e;
+}
