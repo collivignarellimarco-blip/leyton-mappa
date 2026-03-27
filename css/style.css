@@ -220,7 +220,7 @@ button {
 .dim-inner {
   display: flex;
   align-items: center;
-  gap: 24px;
+  justify-content: flex-start;
 }
 
 .dim-donut-wrap {
@@ -652,4 +652,60 @@ body { background:#dde2e7; min-height:100vh; display:flex; flex-direction:column
   color: #7ebd4b !important;
   font-weight: 700;
   margin-right: 4px;
+}
+
+body {
+  padding: 20px;
+}
+
+.card {
+  max-width: 1800px;
+  width: 98%;
+  margin: 0 auto;
+  padding: 36px 48px 28px;
+  box-sizing: border-box;
+}
+
+.card-body {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.distrib-numeri {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+}
+
+.distrib-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e5e9;
+}
+
+.distrib-map {
+  flex: 1;
+  width: 100%;
+  min-height: 400px;
+}
+
+.distrib-map svg {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
+
+.distrib-body {
+  display: block;
+}
+
+.distrib-num {
+  font-size: 38px;
 }
