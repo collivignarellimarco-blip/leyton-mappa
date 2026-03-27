@@ -138,6 +138,14 @@ function renderSettori() {
 
   document.getElementById('settore').innerHTML =
     `<div class="settore-grid">${tiles}</div>`;
+
+  const tileNodes = document.querySelectorAll('.settore-tile');
+  tileNodes.forEach((tile, index) => {
+    const s = SETTORI[index];
+    tile.addEventListener('click', () => {
+      mostraPopupSettore(s.key, s.label);
+    });
+  });
 }
 
 // ── DISTRIBUZIONE ───────────────────────────────
@@ -363,6 +371,95 @@ function mostraPopupRegione(nomeRegione) {
     <div class="popup-header">
       <div class="popup-titolo">${nomeRegione.toUpperCase()}</div>
       <div class="popup-count">${aziendeRegione.length} <span>aziende</span></div>
+      <button class="popup-close">✕</button>
+    </div>
+    <div class="popup-body">
+      ${htmlBody}
+    </div>
+  `;
+
+  popup.querySelector('.popup-close').addEventListener('click', chiudiPopup);
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+}
+
+function mostraPopupSettore(settore, label) {
+  const aziendeSettore = window.clientiData.filter(c => {
+    const m = String(c['Mapping'] || '').trim().toUpperCase();
+    return m === settore.toUpperCase();
+  });
+
+  const byRegione = {};
+  aziendeSettore.forEach(c => {
+    let regStr = String(c['Billing State/Province (text only)'] || '').trim();
+    let reg = regStr !== '' ? regStr : 'Sconosciuta';
+    let provStr = String(c['Province'] || '').trim();
+    let prov = provStr !== '' ? provStr : 'Altre';
+    
+    if (!byRegione[reg]) byRegione[reg] = {};
+    if (!byRegione[reg][prov]) byRegione[reg][prov] = [];
+    byRegione[reg][prov].push({
+      nome: c['Account Name'] || 'Azienda Senza Nome'
+    });
+  });
+
+  const regioniOrdinate = Object.keys(byRegione).sort((a,b) => {
+    if (a.toLowerCase() === 'sconosciuta') return 1;
+    if (b.toLowerCase() === 'sconosciuta') return -1;
+    return a.localeCompare(b);
+  });
+
+  let htmlBody = '';
+  regioniOrdinate.forEach(reg => {
+    htmlBody += `<div class="popup-regione">
+      <div class="popup-regione-nome">${reg.toUpperCase()}</div>`;
+    
+    const byProvincia = byRegione[reg];
+    const provinceOrdinate = Object.keys(byProvincia).sort((a,b) => {
+      if (a.toLowerCase() === 'altre') return 1;
+      if (b.toLowerCase() === 'altre') return -1;
+      return a.localeCompare(b);
+    });
+
+    provinceOrdinate.forEach(prov => {
+      htmlBody += `
+      <div class="popup-provincia">
+        <div class="popup-provincia-nome">${prov}</div>`;
+      
+      const aziende = byProvincia[prov].sort((a,b) => a.nome.localeCompare(b.nome));
+      aziende.forEach(a => {
+        htmlBody += `
+        <div class="popup-azienda"><span class="popup-slash">/</span> ${a.nome}</div>`;
+      });
+      htmlBody += `
+      </div>`;
+    });
+    htmlBody += `
+    </div>`;
+  });
+
+  function chiudiPopup() {
+    document.getElementById('popup-overlay')?.remove();
+    document.getElementById('regione-popup')?.remove();
+    // Reset colore regione attiva
+    d3.selectAll('.distrib-map path').attr('fill', '#cdd5dc');
+  }
+
+  chiudiPopup();
+
+  // Crea overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'popup-overlay';
+  overlay.addEventListener('click', chiudiPopup);
+
+  // Crea modale
+  const popup = document.createElement('div');
+  popup.id = 'regione-popup';
+  popup.innerHTML = `
+    <div class="popup-header">
+      <div class="popup-titolo">${label.toUpperCase()}</div>
+      <div class="popup-count">${aziendeSettore.length} <span>aziende</span></div>
       <button class="popup-close">✕</button>
     </div>
     <div class="popup-body">
