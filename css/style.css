@@ -705,19 +705,50 @@ body {
   border-bottom: 1px solid #e0e5e9;
 }
 
+.distrib-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0;
+}
+
+.distrib-labels-vertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  width: 160px;
+  padding: 20px 0;
+}
+
+.distrib-item-v {
+  position: static;
+  padding-right: 0;
+}
+
+.distrib-line {
+  width: 100%;
+  height: 1px;
+  background: #9cabb6;
+  margin-top: 10px;
+  position: static;
+}
+
 .distrib-map {
   flex: 1;
-  width: 100%;
-  min-height: 400px;
+  min-height: 500px;
   display: flex;
   justify-content: center;
-  padding-left: 10%;
+  align-items: flex-start;
+  padding-top: 0;
+  margin-top: -120px;
 }
 
 .distrib-map svg {
   width: 100%;
   height: auto;
-  max-width: 560px;
+  max-width: 640px;
 }
 
 .distrib-body {
@@ -725,5 +756,21 @@ body {
 }
 
 .distrib-num {
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 38px;
+  font-weight: 900;
+  color: #002c49;
+  line-height: 1;
+}
+
+.distrib-word {
+  font-size: 9px;
+  font-weight: 700;
+  color: #002c49;
+  text-transform: uppercase;
+}
+
+.distrib-place {
+  font-size: 9px;
+  color: #6a8093;
 }

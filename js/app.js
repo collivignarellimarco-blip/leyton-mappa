@@ -238,29 +238,33 @@ function renderDistribuzione() {
     `<div class="distrib-intl-co">— ${n}</div>`).join('');
 
   document.getElementById('distribuzione').innerHTML = `
-  <div class="distrib-numeri">
-    <div class="distrib-item">
-      <div class="distrib-num">${nord}</div>
-      <div class="distrib-word">aziende</div>
-      <div class="distrib-place">Nord Italia</div>
+  <div class="distrib-wrapper">
+    <div class="distrib-labels-vertical">
+      <div class="distrib-item-v">
+        <div class="distrib-num">${nord}</div>
+        <div class="distrib-word">aziende</div>
+        <div class="distrib-place">Nord Italia</div>
+        <div class="distrib-line"></div>
+      </div>
+      <div class="distrib-item-v">
+        <div class="distrib-num">${centro}</div>
+        <div class="distrib-word">aziende</div>
+        <div class="distrib-place">Centro Italia</div>
+        <div class="distrib-line"></div>
+      </div>
+      <div class="distrib-item-v">
+        <div class="distrib-num">${sud}</div>
+        <div class="distrib-word">aziende</div>
+        <div class="distrib-place">Sud Italia e Isole</div>
+        <div class="distrib-line"></div>
+      </div>
+      <div class="distrib-item-v">
+        <div class="distrib-num">${intl}</div>
+        <div class="distrib-word">aziende</div>
+        <div class="distrib-place">Internazionali</div>
+      </div>
     </div>
-    <div class="distrib-item">
-      <div class="distrib-num">${centro}</div>
-      <div class="distrib-word">aziende</div>
-      <div class="distrib-place">Centro Italia</div>
-    </div>
-    <div class="distrib-item">
-      <div class="distrib-num">${sud}</div>
-      <div class="distrib-word">aziende</div>
-      <div class="distrib-place">Sud Italia e Isole</div>
-    </div>
-    <div class="distrib-item">
-      <div class="distrib-num">${intl}</div>
-      <div class="distrib-word">aziende</div>
-      <div class="distrib-place">Internazionali</div>
-    </div>
-  </div>
-  <div class="distrib-map" id="mappa-container">
+    <div class="distrib-map" id="mappa-container"></div>
   </div>`;
   buildRegioni();
 }
