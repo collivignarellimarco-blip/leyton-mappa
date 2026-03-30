@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leyton ESG — Mappa Clienti</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;800;900&family=Barlow+Condensed:wght@700;800;900&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -18,14 +18,15 @@
       <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
     </div>
     <p id="upload-status"></p>
+    <button id="btn-genera" style="display:none">Genera Mappa</button>
     <div id="bu-selection" style="display:none">
       <p class="bu-title">Seleziona la Business Unit</p>
+      <div id="bu-counts"></div>
       <div class="bu-buttons">
-        <button class="bu-btn energy" onclick="selezionaBU('Energy')">⚡ Energy</button>
-        <button class="bu-btn bp" onclick="selezionaBU('Business Performance')">📊 Business Performance</button>
+        <button class="bu-btn energy" onclick="selezionaBU('Energy')">Energy</button>
+        <button class="bu-btn bp" onclick="selezionaBU('Business Performance')">Business Performance</button>
       </div>
     </div>
-    <button id="btn-genera" style="display:none">Genera Mappa</button>
   </div>
 
   <div id="app" style="display:none">

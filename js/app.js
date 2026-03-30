@@ -42,7 +42,14 @@ function handleFile(file) {
       const name = String(r['Account Name'] || '');
       return !name.includes('SEGNALATORE') && !name.includes('PARTNERSHIP');
     });
-    uploadStatus.textContent = '✓ Caricati ' + window.clientiData.length + ' clienti da ' + file.name;
+    const nEnergy = window.clientiData.filter(r => String(r['Business Unit'] || '').trim() === 'Energy').length;
+    const nBP = window.clientiData.filter(r => String(r['Business Unit'] || '').trim() === 'Business Performance').length;
+    document.getElementById('bu-counts').innerHTML = `
+      <div class="bu-count-row">
+        <span class="bu-count-energy">${nEnergy} aziende Energy</span>
+        <span class="bu-count-bp">${nBP} aziende Business Performance</span>
+      </div>`;
+    uploadStatus.textContent = '';
     btnGenera.style.display = 'none';
     document.getElementById('bu-selection').style.display = 'flex';
   };
