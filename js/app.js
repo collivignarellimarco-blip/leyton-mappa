@@ -65,7 +65,7 @@ function selezionaBU(bu) {
   document.getElementById('bu-selection').style.display = 'none';
   btnGenera.style.display = 'block';
   // Aggiorna status
-  uploadStatus.innerHTML = `<span style="color:#002c49; font-weight:700;">✓ ${window.clientiFiltrati.length} aziende ${bu}</span>`;
+  uploadStatus.innerHTML = '';
   // Imposta colore tema
   const colore = bu === 'Energy' ? '#7ebd4b' : '#FF6633';
   document.documentElement.style.setProperty('--accent', colore);

@@ -122,7 +122,7 @@ button {
 }
 
 #btn-genera:hover {
-  background: #6aaa3e;
+  filter: brightness(0.9);
 }
 
 #upload-status {
@@ -786,19 +786,25 @@ body {
 
 .bu-count-row {
   display: flex;
-  gap: 24px;
+  gap: 16px;
   font-family: 'Montserrat', sans-serif;
   font-size: 12px;
+  width: 100%;
+  justify-content: center;
 }
 
 .bu-count-energy {
   color: #7ebd4b;
   font-weight: 700;
+  width: 180px;
+  text-align: center;
 }
 
 .bu-count-bp {
   color: #FF6633;
   font-weight: 700;
+  width: 180px;
+  text-align: center;
 }
 
 .bu-buttons {
