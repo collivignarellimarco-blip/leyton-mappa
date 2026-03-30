@@ -18,6 +18,13 @@
       <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
     </div>
     <p id="upload-status"></p>
+    <div id="bu-selection" style="display:none">
+      <p class="bu-title">Seleziona la Business Unit</p>
+      <div class="bu-buttons">
+        <button class="bu-btn energy" onclick="selezionaBU('Energy')">⚡ Energy</button>
+        <button class="bu-btn bp" onclick="selezionaBU('Business Performance')">📊 Business Performance</button>
+      </div>
+    </div>
     <button id="btn-genera" style="display:none">Genera Mappa</button>
   </div>
 
@@ -27,6 +34,10 @@
       <div class="card-header">
         <h1 class="card-title">I Nostri Clienti</h1>
         <div class="header-stripes"></div>
+      </div>
+
+      <div id="cambia-vista-wrap">
+        <button class="btn-cambia-vista">← Cambia Vista</button>
       </div>
 
       <div class="card-body">

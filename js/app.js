@@ -1,4 +1,5 @@
 window.clientiData = [];
+window.businessUnit = null; // 'Energy' o 'Business Performance'
 
 // ── UPLOAD ──────────────────────────────────────
 const fileInput = document.getElementById('file-input');
@@ -19,6 +20,18 @@ fileInput.addEventListener('change', e => {
 });
 btnGenera.addEventListener('click', renderAll);
 
+function setupCambiaVista() {
+  const btn = document.querySelector('.btn-cambia-vista');
+  if (btn) {
+    btn.onclick = null;
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      cambiaBU();
+    }, true); // usa capture phase
+  }
+}
+
 function handleFile(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -30,9 +43,39 @@ function handleFile(file) {
       return !name.includes('SEGNALATORE') && !name.includes('PARTNERSHIP');
     });
     uploadStatus.textContent = '✓ Caricati ' + window.clientiData.length + ' clienti da ' + file.name;
-    btnGenera.style.display = 'block';
+    btnGenera.style.display = 'none';
+    document.getElementById('bu-selection').style.display = 'flex';
   };
   reader.readAsArrayBuffer(file);
+}
+
+function selezionaBU(bu) {
+  window.businessUnit = bu;
+  // Filtra i dati per Business Unit
+  window.clientiFiltrati = window.clientiData.filter(r =>
+    String(r['Business Unit'] || '').trim() === bu
+  );
+  document.getElementById('bu-selection').style.display = 'none';
+  btnGenera.style.display = 'block';
+  // Aggiorna status
+  uploadStatus.textContent = '✓ ' + window.clientiFiltrati.length + ' aziende ' + bu;
+  // Imposta colore tema
+  const colore = bu === 'Energy' ? '#7ebd4b' : '#FF6633';
+  document.documentElement.style.setProperty('--accent', colore);
+}
+
+function cambiaBU() {
+  window.businessUnit = null;
+  window.clientiFiltrati = [];
+  // Nascondi app
+  document.getElementById('app').style.display = 'none';
+  // Mostra upload section ma senza resettare il file
+  document.getElementById('upload-section').style.display = 'block';
+  // Nascondi genera e mostra selezione BU direttamente
+  btnGenera.style.display = 'none';
+  document.getElementById('bu-selection').style.display = 'flex';
+  // Reset colore tema
+  document.documentElement.style.setProperty('--accent', '#7ebd4b');
 }
 
 // ── RENDER ALL ──────────────────────────────────
@@ -42,11 +85,12 @@ function renderAll() {
   renderDimensioni();
   renderSettori();
   renderDistribuzione();
+  setupCambiaVista();
 }
 
 // ── DIMENSIONI ──────────────────────────────────
 function renderDimensioni() {
-  const dati = window.clientiData;
+  const dati = window.clientiFiltrati;
   const total = dati.length;
   let grandi = 0, medie = 0, piccole = 0, micro = 0;
   dati.forEach(r => {
@@ -124,6 +168,8 @@ function renderDimensioni() {
     angleAcc += sweep + (gap * 360 / circ);
   });
 
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
   // Genera linee e testi
   let linee = '';
   labelData.forEach(l => {
@@ -152,7 +198,7 @@ function renderDimensioni() {
         ${linee}
         <text x="${cx}" y="${cy - 8}" text-anchor="middle" dominant-baseline="middle"
           font-family="Barlow Condensed, sans-serif"
-          font-size="42" font-weight="900" fill="#7ebd4b">${total}</text>
+          font-size="42" font-weight="900" fill="${accentColor}">${total}</text>
         <text x="${cx}" y="${cy + 20}" text-anchor="middle" dominant-baseline="middle"
           font-family="Barlow, sans-serif"
           font-size="13" fill="#002c49">aziende</text>
@@ -182,7 +228,7 @@ function renderSettori() {
   ];
 
   const conteggi = {};
-  window.clientiData.forEach(r => {
+  window.clientiFiltrati.forEach(r => {
     const m = String(r['Mapping'] || '').trim().toUpperCase();
     if (m) conteggi[m] = (conteggi[m] || 0) + 1;
   });
@@ -222,7 +268,7 @@ function renderDistribuzione() {
   let nord = 0, centro = 0, sud = 0, intl = 0;
   const intlNomi = [];
 
-  window.clientiData.forEach(r => {
+  window.clientiFiltrati.forEach(r => {
     const s = String(r['Billing State/Province (text only)'] || '').trim().toLowerCase();
     if (!s) return;
     if (NORD.has(s))        nord++;
@@ -295,6 +341,8 @@ async function buildRegioni() {
     </filter>
   `);
 
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
   let regioneAttiva = null;
 
   svg.append('g')
@@ -313,7 +361,7 @@ async function buildRegioni() {
     })
     .on('mouseover', function() {
       if (this !== regioneAttiva) {
-        d3.select(this).attr('fill', '#7ebd4b');
+        d3.select(this).attr('fill', accent);
       }
     })
     .on('mouseout', function() {
@@ -326,7 +374,7 @@ async function buildRegioni() {
       // Reset tutte le regioni
       svg.selectAll('path').attr('fill', '#cdd5dc');
       // Colora quella cliccata
-      d3.select(this).attr('fill', '#7ebd4b');
+      d3.select(this).attr('fill', accent);
       regioneAttiva = this;
       mostraPopupRegione(nome);
     });
@@ -359,7 +407,7 @@ function mostraPopupRegione(nomeRegione) {
   };
 
   const mappedName = MAPPING_REGIONI[nomeRegione] || nomeRegione;
-  const aziendeRegione = window.clientiData.filter(c => 
+  const aziendeRegione = window.clientiFiltrati.filter(c => 
     c['Billing State/Province (text only)'] && 
     c['Billing State/Province (text only)'].toLowerCase() === mappedName
   );
@@ -448,7 +496,7 @@ function mostraPopupRegione(nomeRegione) {
 }
 
 function mostraPopupSettore(settore, label) {
-  const aziendeSettore = window.clientiData.filter(c => {
+  const aziendeSettore = window.clientiFiltrati.filter(c => {
     const m = String(c['Mapping'] || '').trim().toUpperCase();
     return m === settore.toUpperCase();
   });
