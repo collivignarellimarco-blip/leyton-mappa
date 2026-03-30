@@ -65,7 +65,7 @@ function selezionaBU(bu) {
   document.getElementById('bu-selection').style.display = 'none';
   btnGenera.style.display = 'block';
   // Aggiorna status
-  uploadStatus.textContent = '✓ ' + window.clientiFiltrati.length + ' aziende ' + bu;
+  uploadStatus.innerHTML = `<span style="color:#002c49; font-weight:700;">✓ ${window.clientiFiltrati.length} aziende ${bu}</span>`;
   // Imposta colore tema
   const colore = bu === 'Energy' ? '#7ebd4b' : '#FF6633';
   document.documentElement.style.setProperty('--accent', colore);
@@ -93,6 +93,17 @@ function renderAll() {
   renderSettori();
   renderDistribuzione();
   setupCambiaVista();
+  aggiornaLogo();
+}
+
+function aggiornaLogo() {
+  const logoWrap = document.querySelector('.leyton-logo');
+  if (!logoWrap) return;
+  if (window.businessUnit === 'Energy') {
+    logoWrap.innerHTML = `<img src="assets/leyton_esg_3.svg" alt="Leyton ESG" style="height:22px; width:auto; display:block;">`;
+  } else {
+    logoWrap.innerHTML = `<img src="assets/logo_leyton.svg" alt="Leyton" style="height:22px; width:auto; display:block;">`;
+  }
 }
 
 // ── DIMENSIONI ──────────────────────────────────
@@ -316,10 +327,34 @@ function renderDistribuzione() {
         <div class="distrib-word">aziende</div>
         <div class="distrib-place">Internazionali</div>
       </div>
+      <div class="mondo-wrap">
+        <img src="assets/mondo.svg" id="icona-mondo" alt="Internazionali"
+          class="icona-mondo">
+      </div>
     </div>
     <div class="distrib-map" id="mappa-container"></div>
   </div>`;
   buildRegioni();
+
+  setTimeout(() => {
+    const mondo = document.getElementById('icona-mondo');
+    if (mondo) {
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      mondo.style.filter = `grayscale(100%) opacity(50%)`;
+      mondo.addEventListener('mouseenter', () => {
+        mondo.style.filter = `none`;
+        mondo.style.transform = 'scale(1.05)';
+      });
+      mondo.addEventListener('mouseleave', () => {
+        mondo.style.filter = `grayscale(100%) opacity(50%)`;
+        mondo.style.transform = 'scale(1)';
+      });
+      mondo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mostraPopupInternazionali();
+      });
+    }
+  }, 200);
 }
 
 async function buildRegioni() {
@@ -586,6 +621,65 @@ function mostraPopupSettore(settore, label) {
   `;
 
   popup.querySelector('.popup-close').addEventListener('click', chiudiPopup);
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+}
+
+function mostraPopupInternazionali() {
+  const aziende = window.clientiFiltrati
+    .filter(r => {
+      const s = String(r['Billing State/Province (text only)'] || '').trim().toLowerCase();
+      const NORD = new Set(['lombardia','veneto','piemonte','emilia-romagna','emilia romagna','liguria','trentino-alto adige','trento','bolzano','friuli venezia giulia',"valle d'aosta",'aosta']);
+      const CENTRO = new Set(['toscana','lazio','umbria','marche']);
+      const SUD = new Set(['campania','puglia','calabria','sicilia','sardegna','basilicata','molise','abruzzo']);
+      return s && !NORD.has(s) && !CENTRO.has(s) && !SUD.has(s);
+    })
+    .sort((a, b) => String(a['Account Name']).localeCompare(String(b['Account Name'])));
+
+  const ICONE_SETTORE = {
+    'ALIMENTARE': 'elenco/elenco_alimentare.svg',
+    'AUTOMOTIVE': 'elenco/elenco_automotive.svg',
+    'CHIMICO': 'elenco/elenco_chimico.svg',
+    'COMMERCIO': 'elenco/elenco_commercio.svg',
+    'CONSULENZA': 'elenco/elenco_consulenza.svg',
+    'COSTRUZIONI': 'elenco/elenco_costruzioni.svg',
+    'FARMACEUTICO': 'elenco/elenco_pharma.svg',
+    'HORECA': 'elenco/elenco_horeca.svg',
+    'IT': 'elenco/elenco_it.svg',
+    'MANIFATTURIERO': 'elenco/elenco_manifatturiero.svg',
+    'MODA': 'elenco/elenco_moda.svg',
+    'RICERCA': 'elenco/elenco_ricerca.svg',
+    'SALUTE': 'elenco/elenco_salute.svg',
+    'SERVIZI': 'elenco/elenco_servizi.svg',
+    'TELECOMUNICAZIONI': 'elenco/elenco_telecomunicazioni.svg',
+    'TRASPORTI': 'elenco/elenco_trasporti.svg',
+  };
+
+  const listaHtml = aziende.map(r => {
+    const settore = String(r['Mapping'] || '').trim().toUpperCase();
+    const icona = ICONE_SETTORE[settore];
+    const iconaHtml = icona
+      ? `<img src="assets/icons/${icona}" class="popup-azienda-icon">`
+      : `<span style="width:14px;display:inline-block"></span>`;
+    return `<div class="popup-azienda">${iconaHtml} ${String(r['Account Name'] || '').toUpperCase()}</div>`;
+  }).join('');
+
+  const overlay = document.createElement('div');
+  overlay.id = 'popup-overlay';
+  overlay.addEventListener('click', chiudiPopup);
+
+  const popup = document.createElement('div');
+  popup.id = 'regione-popup';
+  popup.innerHTML = `
+    <div class="popup-header">
+      <div class="popup-titolo">INTERNAZIONALI</div>
+      <div class="popup-count">${aziende.length} <span>aziende</span></div>
+      <button class="popup-close" onclick="chiudiPopup()">✕</button>
+    </div>
+    <div class="popup-body" style="column-count:3">
+      ${listaHtml}
+    </div>`;
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);

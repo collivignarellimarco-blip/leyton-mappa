@@ -869,3 +869,27 @@ body {
   border-color: #002c49;
   color: #002c49;
 }
+
+.mondo-wrap {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.icona-mondo {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+  filter: grayscale(100%) opacity(50%);
+}
+
+.icona-mondo:hover {
+  filter: none;
+  transform: scale(1.05);
+}
+
+.icona-mondo.active {
+  filter: none;
+}
