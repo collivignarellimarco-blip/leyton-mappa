@@ -907,3 +907,67 @@ body {
 .icona-mondo.active {
   filter: none;
 }
+
+#search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+#search-input {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  padding: 8px 16px;
+  border: 1.5px solid #cdd5dc;
+  border-radius: 8px;
+  width: 260px;
+  color: #002c49;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#search-input:focus {
+  border-color: var(--accent);
+}
+
+#search-btn {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: filter 0.2s;
+}
+
+#search-btn:hover {
+  filter: brightness(0.9);
+}
+
+.ricerca-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e5e9;
+}
+
+.ricerca-field:last-child {
+  border-bottom: none;
+}
+
+.ricerca-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6a8093;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ricerca-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #002c49;
+}

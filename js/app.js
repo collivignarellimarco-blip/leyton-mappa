@@ -94,6 +94,7 @@ function renderAll() {
   renderDistribuzione();
   setupCambiaVista();
   aggiornaLogo();
+  setupRicerca();
 }
 
 function aggiornaLogo() {
@@ -676,4 +677,101 @@ function mostraPopupInternazionali() {
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
+}
+
+function cercaAzienda() {
+  const query = document.getElementById('search-input').value.trim();
+  if (!query) return;
+
+  const risultato = window.clientiFiltrati.find(r =>
+    String(r['Registered Number'] || '').trim() === query
+  );
+
+  if (!risultato) {
+    mostraPopupRicerca(null, query);
+    return;
+  }
+  mostraPopupRicerca(risultato, query);
+}
+
+function mostraPopupRicerca(azienda, query) {
+  document.getElementById('popup-overlay')?.remove();
+  document.getElementById('regione-popup')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'popup-overlay';
+  overlay.addEventListener('click', () => {
+    document.getElementById('popup-overlay')?.remove();
+    document.getElementById('regione-popup')?.remove();
+  });
+
+  const popup = document.createElement('div');
+  popup.id = 'regione-popup';
+
+  if (!azienda) {
+    popup.innerHTML = `
+      <div class="popup-header">
+        <div class="popup-header-left">
+          <div class="popup-titolo">RICERCA</div>
+        </div>
+        <button class="popup-close">✕</button>
+      </div>
+      <div class="popup-body" style="column-count:1; text-align:center; padding: 40px;">
+        <div style="font-size:14px; color:#6a8093;">Partita IVA <strong>${query}</strong> non presente</div>
+      </div>`;
+  } else {
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    popup.innerHTML = `
+      <div class="popup-header">
+        <div class="popup-header-left">
+          <div class="popup-titolo">${String(azienda['Account Name'] || '').toUpperCase()}</div>
+        </div>
+        <button class="popup-close">✕</button>
+      </div>
+      <div class="popup-body" style="column-count:1;">
+        <div class="ricerca-field">
+          <span class="ricerca-label">Partita IVA</span>
+          <span class="ricerca-value">${azienda['Registered Number'] || '—'}</span>
+        </div>
+        <div class="ricerca-field">
+          <span class="ricerca-label">Settore</span>
+          <span class="ricerca-value">${azienda['Mapping'] || '—'}</span>
+        </div>
+        <div class="ricerca-field">
+          <span class="ricerca-label">Dipendenti</span>
+          <span class="ricerca-value">${azienda['Employees'] || '—'}</span>
+        </div>
+        <div class="ricerca-field">
+          <span class="ricerca-label">Regione</span>
+          <span class="ricerca-value">${azienda['Billing State/Province (text only)'] || '—'}</span>
+        </div>
+        <div class="ricerca-field">
+          <span class="ricerca-label">Provincia</span>
+          <span class="ricerca-value">${azienda['Province'] || '—'}</span>
+        </div>
+        <div class="ricerca-field">
+          <span class="ricerca-label">Business Unit</span>
+          <span class="ricerca-value" style="color:${accent}; font-weight:700;">${azienda['Business Unit'] || '—'}</span>
+        </div>
+        <div class="ricerca-field">
+          <span class="ricerca-label">Fatturato</span>
+          <span class="ricerca-value">${azienda['Turnover'] || '—'}</span>
+        </div>
+      </div>`;
+  }
+
+  popup.querySelector('.popup-close').addEventListener('click', () => {
+    document.getElementById('popup-overlay')?.remove();
+    document.getElementById('regione-popup')?.remove();
+  });
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+}
+
+function setupRicerca() {
+  document.getElementById('search-btn').addEventListener('click', cercaAzienda);
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') cercaAzienda();
+  });
 }
