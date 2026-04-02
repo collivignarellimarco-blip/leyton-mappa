@@ -971,3 +971,109 @@ body {
   font-weight: 700;
   color: #002c49;
 }
+
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e0e5e9;
+  color: #9cabb6;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.step-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #9cabb6;
+  transition: all 0.3s;
+}
+
+.step.active .step-circle {
+  background: #002c49;
+  color: white;
+}
+
+.step.active .step-label {
+  color: #002c49;
+  font-weight: 700;
+}
+
+.step.done .step-circle {
+  background: #002c49;
+  color: white;
+}
+
+.step.done .step-label {
+  color: #002c49;
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: #e0e5e9;
+  margin: 0 8px;
+  margin-bottom: 20px;
+  min-width: 40px;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.step-subtitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  color: #526d81;
+  margin: 0;
+}
+
+.step3-bu-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 42px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.step3-count {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #002c49;
+  text-align: center;
+}
+
+.step3-count span {
+  font-size: 14px;
+  font-weight: 400;
+  color: #6a8093;
+  margin-left: 6px;
+}

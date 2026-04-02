@@ -12,21 +12,51 @@
 <body>
 
   <div id="upload-section">
-    <div id="drop-zone">
-      Trascina qui il file Excel oppure
-      <label for="file-input">clicca per selezionare</label>
-      <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
-    </div>
-    <p id="upload-status"></p>
-    <button id="btn-genera" style="display:none">Genera Mappa</button>
-    <div id="bu-selection" style="display:none">
-      <p class="bu-title">Seleziona la Business Unit</p>
-      <div id="bu-counts"></div>
-      <div class="bu-buttons">
-        <button class="bu-btn energy" onclick="selezionaBU('Energy')">Energy</button>
-        <button class="bu-btn bp" onclick="selezionaBU('Business Performance')">Business Performance</button>
+    <!-- PROGRESS STEPS -->
+    <div class="steps">
+      <div class="step active" id="step-1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Carica file</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" id="step-2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Seleziona BU</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" id="step-3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Genera</div>
       </div>
     </div>
+
+    <!-- STEP 1: UPLOAD -->
+    <div id="step-content-1" class="step-content">
+      <div id="drop-zone">
+        Trascina qui il file Excel oppure
+        <label for="file-input">clicca per selezionare</label>
+        <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
+      </div>
+      <p id="upload-status"></p>
+    </div>
+
+    <!-- STEP 2: SELEZIONE BU -->
+    <div id="step-content-2" class="step-content" style="display:none">
+      <p class="step-subtitle">Seleziona la Business Unit da analizzare</p>
+      <div id="bu-counts"></div>
+      <div class="bu-buttons">
+        <button class="bu-btn energy" onclick="selezionaBU('Energy')">⚡ Energy</button>
+        <button class="bu-btn bp" onclick="selezionaBU('Business Performance')">📊 Business Performance</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: GENERA -->
+    <div id="step-content-3" class="step-content" style="display:none">
+      <div id="step3-info"></div>
+      <button id="btn-genera">Genera Mappa →</button>
+    </div>
+
+    <div id="bu-selection" style="display:none"></div>
   </div>
 
   <div id="app" style="display:none">

@@ -42,6 +42,8 @@ function handleFile(file) {
       const name = String(r['Account Name'] || '');
       return !name.includes('SEGNALATORE') && !name.includes('PARTNERSHIP');
     });
+    // Passa allo step 2
+    setStep(2);
     const nEnergy = window.clientiData.filter(r => String(r['Business Unit'] || '').trim() === 'Energy').length;
     const nBP = window.clientiData.filter(r => String(r['Business Unit'] || '').trim() === 'Business Performance').length;
     document.getElementById('bu-counts').innerHTML = `
@@ -49,9 +51,6 @@ function handleFile(file) {
         <span class="bu-count-energy">${nEnergy} aziende Energy</span>
         <span class="bu-count-bp">${nBP} aziende Business Performance</span>
       </div>`;
-    uploadStatus.textContent = '';
-    btnGenera.style.display = 'none';
-    document.getElementById('bu-selection').style.display = 'flex';
   };
   reader.readAsArrayBuffer(file);
 }
@@ -62,27 +61,35 @@ function selezionaBU(bu) {
   window.clientiFiltrati = window.clientiData.filter(r =>
     String(r['Business Unit'] || '').trim() === bu
   );
-  document.getElementById('bu-selection').style.display = 'none';
-  btnGenera.style.display = 'block';
-  // Aggiorna status
-  uploadStatus.innerHTML = '';
-  // Imposta colore tema
+  // Passa allo step 3
+  setStep(3);
   const colore = bu === 'Energy' ? '#7ebd4b' : '#FF6633';
   document.documentElement.style.setProperty('--accent', colore);
+  document.getElementById('step3-info').innerHTML = `
+    <div class="step3-bu-name" style="color:${colore}">${bu}</div>
+    <div class="step3-count">${window.clientiFiltrati.length} <span>aziende pronte</span></div>`;
 }
 
 function cambiaBU() {
   window.businessUnit = null;
   window.clientiFiltrati = [];
-  // Nascondi app
   document.getElementById('app').style.display = 'none';
-  // Mostra upload section ma senza resettare il file
   document.getElementById('upload-section').style.display = 'block';
-  // Nascondi genera e mostra selezione BU direttamente
-  btnGenera.style.display = 'none';
-  document.getElementById('bu-selection').style.display = 'flex';
-  // Reset colore tema
   document.documentElement.style.setProperty('--accent', '#7ebd4b');
+  setStep(2); // torna alla selezione BU senza ricaricare il file
+}
+
+function setStep(n) {
+  // Aggiorna contenuti
+  document.querySelectorAll('.step-content').forEach(el => el.style.display = 'none');
+  document.getElementById(`step-content-${n}`).style.display = 'flex';
+
+  // Aggiorna circles
+  document.querySelectorAll('.step').forEach((el, i) => {
+    el.classList.remove('active', 'done');
+    if (i + 1 < n) el.classList.add('done');
+    if (i + 1 === n) el.classList.add('active');
+  });
 }
 
 // ── RENDER ALL ──────────────────────────────────
