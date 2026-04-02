@@ -538,8 +538,16 @@ body { background:#dde2e7; min-height:100vh; display:flex; flex-direction:column
   justify-content: space-between;
   padding: 18px 24px;
   border-bottom: 1px solid #e0e5e9;
-  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
   border-radius: 16px 16px 0 0;
+}
+.popup-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 .popup-titolo {
   font-family: 'Barlow Condensed', sans-serif;
@@ -554,14 +562,14 @@ body { background:#dde2e7; min-height:100vh; display:flex; flex-direction:column
   font-size: 26px;
   font-weight: 900;
   color: #002c49;
-  text-align: right;
+  text-align: left;
 }
 .popup-count span {
   font-size: 10px;
   font-weight: 400;
-  display: block;
-  line-height: 1;
+  display: inline;
   color: #6a8093;
+  margin-left: 4px;
 }
 .popup-close {
   background: none;

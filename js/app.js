@@ -329,22 +329,12 @@ function renderDistribuzione() {
       </div>
       <div class="mondo-wrap">
         <img src="assets/mondo.svg" id="icona-mondo" alt="Internazionali"
-          class="icona-mondo">
+          class="icona-mondo" onclick="mostraPopupInternazionali()">
       </div>
     </div>
     <div class="distrib-map" id="mappa-container"></div>
   </div>`;
   buildRegioni();
-
-  setTimeout(() => {
-    const mondo = document.getElementById('icona-mondo');
-    if (mondo) {
-      mondo.onclick = function(e) {
-        e.stopPropagation();
-        mostraPopupInternazionali();
-      };
-    }
-  }, 500);
 }
 
 async function buildRegioni() {
@@ -512,8 +502,10 @@ function mostraPopupRegione(nomeRegione) {
   popup.id = 'regione-popup';
   popup.innerHTML = `
     <div class="popup-header">
-      <div class="popup-titolo">${nomeRegione.toUpperCase()}</div>
-      <div class="popup-count">${aziendeRegione.length} <span>aziende</span></div>
+      <div class="popup-header-left">
+        <div class="popup-titolo">${nomeRegione.toUpperCase()}</div>
+        <div class="popup-count">${aziendeRegione.length} <span>aziende</span></div>
+      </div>
       <button class="popup-close">✕</button>
     </div>
     <div class="popup-body">
@@ -601,8 +593,10 @@ function mostraPopupSettore(settore, label) {
   popup.id = 'regione-popup';
   popup.innerHTML = `
     <div class="popup-header">
-      <div class="popup-titolo">${label.toUpperCase()}</div>
-      <div class="popup-count">${aziendeSettore.length} <span>aziende</span></div>
+      <div class="popup-header-left">
+        <div class="popup-titolo">${label.toUpperCase()}</div>
+        <div class="popup-count">${aziendeSettore.length} <span>aziende</span></div>
+      </div>
       <button class="popup-close">✕</button>
     </div>
     <div class="popup-body">
@@ -655,6 +649,11 @@ function mostraPopupInternazionali() {
     return `<div class="popup-azienda">${iconaHtml} ${String(r['Account Name'] || '').toUpperCase()}</div>`;
   }).join('');
 
+  function chiudiPopup() {
+    document.getElementById('popup-overlay')?.remove();
+    document.getElementById('regione-popup')?.remove();
+  }
+
   const overlay = document.createElement('div');
   overlay.id = 'popup-overlay';
   overlay.addEventListener('click', chiudiPopup);
@@ -663,13 +662,17 @@ function mostraPopupInternazionali() {
   popup.id = 'regione-popup';
   popup.innerHTML = `
     <div class="popup-header">
-      <div class="popup-titolo">INTERNAZIONALI</div>
-      <div class="popup-count">${aziende.length} <span>aziende</span></div>
-      <button class="popup-close" onclick="chiudiPopup()">✕</button>
+      <div class="popup-header-left">
+        <div class="popup-titolo">INTERNAZIONALI</div>
+        <div class="popup-count">${aziende.length} <span>aziende</span></div>
+      </div>
+      <button class="popup-close">✕</button>
     </div>
     <div class="popup-body" style="column-count:3">
       ${listaHtml}
     </div>`;
+
+  popup.querySelector('.popup-close').addEventListener('click', chiudiPopup);
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
