@@ -198,11 +198,11 @@ function renderDimensioni() {
       <text x="${l.textX.toFixed(1)}" y="${(l.y2 - 10).toFixed(1)}"
         text-anchor="${l.textAnchor}"
         font-family="Barlow Condensed, sans-serif"
-        font-size="18" font-weight="900" fill="#002c49">${l.val}</text>
+        font-size="22" font-weight="900" fill="#002c49">${l.val}</text>
       <text x="${l.textX.toFixed(1)}" y="${(l.y2 + 4).toFixed(1)}"
         text-anchor="${l.textAnchor}"
         font-family="Barlow, sans-serif"
-        font-size="8" fill="#002c49">${l.label}</text>
+        font-size="9" fill="#002c49">${l.label}</text>
       <text x="${l.textX.toFixed(1)}" y="${(l.y2 + 14).toFixed(1)}"
         text-anchor="${l.textAnchor}"
         font-family="Barlow, sans-serif"
@@ -339,22 +339,12 @@ function renderDistribuzione() {
   setTimeout(() => {
     const mondo = document.getElementById('icona-mondo');
     if (mondo) {
-      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-      mondo.style.filter = `grayscale(100%) opacity(50%)`;
-      mondo.addEventListener('mouseenter', () => {
-        mondo.style.filter = `none`;
-        mondo.style.transform = 'scale(1.05)';
-      });
-      mondo.addEventListener('mouseleave', () => {
-        mondo.style.filter = `grayscale(100%) opacity(50%)`;
-        mondo.style.transform = 'scale(1)';
-      });
-      mondo.addEventListener('click', (e) => {
+      mondo.onclick = function(e) {
         e.stopPropagation();
         mostraPopupInternazionali();
-      });
+      };
     }
-  }, 200);
+  }, 500);
 }
 
 async function buildRegioni() {
