@@ -165,10 +165,10 @@ function renderDimensioni() {
   archi += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#e5e8eb" stroke-width="${strokeW}"/>`;
 
   const segmentiOrdinati = [
-    { val: grandi,  color: '#002c49' },
-    { val: medie,   color: '#526d81' },
-    { val: piccole, color: '#9cabb6' },
-    { val: micro,   color: '#cdd5dc' },
+    { val: grandi,  color: '#002c49', key: 'grandi',  label: 'Grandi Imprese'  },
+    { val: medie,   color: '#526d81', key: 'medie',   label: 'Medie Imprese'   },
+    { val: piccole, color: '#9cabb6', key: 'piccole', label: 'Piccole Imprese' },
+    { val: micro,   color: '#cdd5dc', key: 'micro',   label: 'Micro Imprese'   },
   ];
 
   segmentiOrdinati.forEach(s => {
@@ -246,6 +246,107 @@ function renderDimensioni() {
           font-size="13" fill="#002c49">aziende</text>
       </svg>
     </div>`;
+
+  // Aggancia click ai segmenti donut dopo il render
+  setTimeout(() => {
+    const svgEl = document.querySelector('#dimensioni svg');
+    if (!svgEl) return;
+
+    // I circle colorati sono dal 2° in poi (il primo è il cerchio grigio di sfondo)
+    const circles = svgEl.querySelectorAll('circle');
+    const mapping = [
+      { key: 'grandi',  label: 'Grandi Imprese'  },
+      { key: 'medie',   label: 'Medie Imprese'   },
+      { key: 'piccole', label: 'Piccole Imprese'  },
+      { key: 'micro',   label: 'Micro Imprese'    },
+    ];
+
+    // Salta il primo circle (sfondo grigio), prendi i successivi 4
+    let idx = 0;
+    circles.forEach((c, i) => {
+      if (i === 0) return; // skip sfondo
+      if (idx >= mapping.length) return;
+      const m = mapping[idx];
+      c.style.cursor = 'pointer';
+      c.setAttribute('pointer-events', 'stroke');
+      c.addEventListener('click', () => mostraPopupDimensione(m.key, m.label));
+      c.addEventListener('mouseenter', function() { this.style.opacity = '0.75'; });
+      c.addEventListener('mouseleave', function() { this.style.opacity = '1'; });
+      idx++;
+    });
+  }, 300);
+}
+
+function mostraPopupDimensione(key, label) {
+  // Filtra aziende per dimensione
+  const aziende = window.clientiFiltrati.filter(r => {
+    const emp = parseFloat(r['Employees']);
+    if (isNaN(emp)) return false;
+    if (key === 'grandi')  return emp > 250;
+    if (key === 'medie')   return emp >= 50 && emp <= 250;
+    if (key === 'piccole') return emp >= 10 && emp < 50;
+    if (key === 'micro')   return emp < 10;
+    return false;
+  });
+
+  // Raggruppa per regione → provincia (stesso schema modale settori)
+  const perRegione = {};
+  aziende.forEach(r => {
+    const regione = String(r['Billing State/Province (text only)'] || 'Sconosciuta').trim().toUpperCase();
+    const provincia = String(r['Province'] || 'Altre').trim();
+    const nome = String(r['Account Name'] || '').toUpperCase();
+    if (!perRegione[regione]) perRegione[regione] = {};
+    if (!perRegione[regione][provincia]) perRegione[regione][provincia] = [];
+    perRegione[regione][provincia].push(nome);
+  });
+
+  // Genera HTML regioni ordinate alfabeticamente
+  const bodyHtml = Object.keys(perRegione).sort().map(regione => {
+    const province = Object.keys(perRegione[regione]).sort().map(prov => {
+      const aziList = perRegione[regione][prov].sort().map(n =>
+        `<div class="popup-azienda"><span class="popup-slash">/</span> ${n}</div>`
+      ).join('');
+      return `<div class="popup-provincia">
+        <div class="popup-provincia-nome">${prov}</div>
+        ${aziList}
+      </div>`;
+    }).join('');
+    return `<div class="popup-regione">
+      <div class="popup-regione-nome">${regione}</div>
+      ${province}
+    </div>`;
+  }).join('');
+
+  // Crea overlay e popup
+  document.getElementById('popup-overlay')?.remove();
+  document.getElementById('regione-popup')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'popup-overlay';
+
+  const popup = document.createElement('div');
+  popup.id = 'regione-popup';
+  popup.innerHTML = `
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="popup-titolo">${label}</div>
+        <div class="popup-count">${aziende.length} <span>aziende</span></div>
+      </div>
+      <button class="popup-close">✕</button>
+    </div>
+    <div class="popup-body" style="column-count:3">
+      ${bodyHtml}
+    </div>`;
+
+  const closeDim = () => {
+    document.getElementById('popup-overlay')?.remove();
+    document.getElementById('regione-popup')?.remove();
+  };
+  overlay.addEventListener('click', closeDim);
+  popup.querySelector('.popup-close').addEventListener('click', closeDim);
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
 }
 
 // ── SETTORI ─────────────────────────────────────
