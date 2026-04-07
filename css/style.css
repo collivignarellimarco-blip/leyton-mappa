@@ -682,12 +682,14 @@ body {
   margin: 0;
   padding: 36px 48px 28px;
   border-radius: 20px;
+  position: relative;
 }
 
 #upload-section {
   width: 100%;
   max-width: 480px;
   margin: 40px auto;
+  position: relative;
 }
 
 .card-body {
@@ -860,8 +862,6 @@ body {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 12px;
-  position: relative;
-  z-index: 999;
 }
 
 .btn-cambia-vista {
@@ -1076,4 +1076,37 @@ body {
   font-weight: 400;
   color: #6a8093;
   margin-left: 6px;
+}
+
+#step3-back-wrap,
+#step2-back-wrap {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+}
+
+.step3-back {
+  background: none;
+  border: 1.5px solid #cdd5dc;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 16px;
+  color: #526d81;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.step3-back:hover {
+  border-color: #002c49;
+  color: #002c49;
+}
+
+#step-content-2 {
+  position: relative;
+}
+
+#step-content-2 .step3-back {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
 }

@@ -44,6 +44,11 @@ function handleFile(file) {
     });
     // Passa allo step 2
     setStep(2);
+    document.getElementById('step2-back-wrap')?.remove();
+    const back2Wrap = document.createElement('div');
+    back2Wrap.id = 'step2-back-wrap';
+    back2Wrap.innerHTML = `<button class="step3-back" onclick="setStep(1)">←</button>`;
+    document.getElementById('upload-section').appendChild(back2Wrap);
     const nEnergy = window.clientiData.filter(r => String(r['Business Unit'] || '').trim() === 'Energy').length;
     const nBP = window.clientiData.filter(r => String(r['Business Unit'] || '').trim() === 'Business Performance').length;
     document.getElementById('bu-counts').innerHTML = `
@@ -65,6 +70,14 @@ function selezionaBU(bu) {
   setStep(3);
   const colore = bu === 'Energy' ? '#7ebd4b' : '#FF6633';
   document.documentElement.style.setProperty('--accent', colore);
+  // Aggiungi freccia in alto a destra nel contenitore upload-section
+  document.getElementById('step2-back-wrap')?.remove();
+  document.getElementById('step3-back-wrap')?.remove();
+  const backWrap = document.createElement('div');
+  backWrap.id = 'step3-back-wrap';
+  backWrap.innerHTML = `<button class="step3-back" onclick="setStep(2)">←</button>`;
+  document.getElementById('upload-section').appendChild(backWrap);
+
   document.getElementById('step3-info').innerHTML = `
     <div class="step3-bu-name" style="color:${colore}">${bu}</div>
     <div class="step3-count">${window.clientiFiltrati.length} <span>aziende pronte</span></div>`;
@@ -80,6 +93,9 @@ function cambiaBU() {
 }
 
 function setStep(n) {
+  // Rimuovi eventuali frecce precedenti
+  document.querySelectorAll('.step3-back').forEach(el => el.remove());
+  document.getElementById('step3-back-wrap')?.remove();
   // Aggiorna contenuti
   document.querySelectorAll('.step-content').forEach(el => el.style.display = 'none');
   document.getElementById(`step-content-${n}`).style.display = 'flex';
