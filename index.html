@@ -43,10 +43,23 @@
     <!-- STEP 2: SELEZIONE BU -->
     <div id="step-content-2" class="step-content" style="display:none">
       <p class="step-subtitle">Seleziona la Business Unit da analizzare</p>
-      <div id="bu-counts"></div>
-      <div class="bu-buttons">
-        <button class="bu-btn energy" onclick="selezionaBU('Energy')">Energy</button>
-        <button class="bu-btn bp" onclick="selezionaBU('Business Performance')">Business Performance</button>
+      <div class="bu-grid">
+        <div class="bu-col">
+          <div class="bu-count-item" id="count-esg"></div>
+          <button class="bu-btn" style="background:#7ebd4b" onclick="selezionaBU('ESG')">ESG</button>
+        </div>
+        <div class="bu-col">
+          <div class="bu-count-item" id="count-bp"></div>
+          <button class="bu-btn" style="background:#FF6633" onclick="selezionaBU('Business Performance')">Business Performance</button>
+        </div>
+        <div class="bu-col">
+          <div class="bu-count-item" id="count-pco"></div>
+          <button class="bu-btn" style="background:#EE6784" onclick="selezionaBU('PCO')">PCO</button>
+        </div>
+        <div class="bu-col">
+          <div class="bu-count-item" id="count-ip"></div>
+          <button class="bu-btn" style="background:#FBB61A" onclick="selezionaBU('IP')">IP</button>
+        </div>
       </div>
     </div>
 

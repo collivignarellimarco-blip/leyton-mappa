@@ -1,3 +1,10 @@
+const BU_CONFIG = {
+  'ESG':                  { colore: '#7ebd4b', label: 'ESG' },
+  'Business Performance': { colore: '#FF6633', label: 'Business Performance' },
+  'PCO':                  { colore: '#EE6784', label: 'PCO' },
+  'IP':                   { colore: '#FBB61A', label: 'IP' },
+};
+
 window.clientiData = [];
 window.businessUnit = null; // 'Energy' o 'Business Performance'
 
@@ -49,13 +56,16 @@ function handleFile(file) {
     back2Wrap.id = 'step2-back-wrap';
     back2Wrap.innerHTML = `<button class="step3-back" onclick="setStep(1)">←</button>`;
     document.getElementById('upload-section').appendChild(back2Wrap);
-    const nEnergy = window.clientiData.filter(r => String(r['Business Unit'] || '').trim() === 'Energy').length;
-    const nBP = window.clientiData.filter(r => String(r['Business Unit'] || '').trim() === 'Business Performance').length;
-    document.getElementById('bu-counts').innerHTML = `
-      <div class="bu-count-row">
-        <span class="bu-count-energy">${nEnergy} aziende Energy</span>
-        <span class="bu-count-bp">${nBP} aziende Business Performance</span>
-      </div>`;
+    const counts = {};
+    Object.keys(BU_CONFIG).forEach(bu => {
+      counts[bu] = window.clientiData.filter(r =>
+        String(r['Business Unit'] || '').trim() === bu
+      ).length;
+    });
+    document.getElementById('count-esg').innerHTML = `<span class="bu-count" style="color:#7ebd4b">${counts['ESG'] || 0} aziende ESG</span>`;
+    document.getElementById('count-bp').innerHTML = `<span class="bu-count" style="color:#FF6633">${counts['Business Performance'] || 0} aziende BP</span>`;
+    document.getElementById('count-pco').innerHTML = `<span class="bu-count" style="color:#EE6784">${counts['PCO'] || 0} aziende PCO</span>`;
+    document.getElementById('count-ip').innerHTML = `<span class="bu-count" style="color:#FBB61A">${counts['IP'] || 0} aziende IP</span>`;
   };
   reader.readAsArrayBuffer(file);
 }
@@ -68,7 +78,7 @@ function selezionaBU(bu) {
   );
   // Passa allo step 3
   setStep(3);
-  const colore = bu === 'Energy' ? '#7ebd4b' : '#FF6633';
+  const colore = BU_CONFIG[bu]?.colore || '#7ebd4b';
   document.documentElement.style.setProperty('--accent', colore);
   // Aggiungi freccia in alto a destra nel contenitore upload-section
   document.getElementById('step2-back-wrap')?.remove();
