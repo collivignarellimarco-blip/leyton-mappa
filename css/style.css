@@ -536,6 +536,7 @@ body { background:#dde2e7; min-height:100vh; display:flex; flex-direction:column
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 18px 24px;
   border-bottom: 1px solid #e0e5e9;
   position: sticky;
@@ -543,6 +544,31 @@ body { background:#dde2e7; min-height:100vh; display:flex; flex-direction:column
   background: white;
   z-index: 1;
   border-radius: 16px 16px 0 0;
+}
+
+.popup-header-right {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-right: 24px;
+  margin-left: auto;
+}
+
+.popup-beneficio-label {
+  font-family: 'Barlow', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #002c49;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.popup-beneficio {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
 }
 .popup-header-left {
   display: flex;
@@ -1138,3 +1164,4 @@ body {
   text-align: center;
   min-height: 16px;
 }
+

@@ -107,14 +107,29 @@ async function handleFile(file) {
     // Filtra righe senza BU mappata
     const rowsValide = rowsProcessed.filter(r => r['Business Unit'] !== null);
 
+    // Calcola somma RDTC per account
+    const rdtcPerAccount = {};
+    rowsValide.forEach(r => {
+      const account = String(r['Account Name'] || '').trim();
+      const rdtc = parseFloat(String(r['RDTC Amount'] || '').replace(',', '.')) || 0;
+      if (!rdtcPerAccount[account]) rdtcPerAccount[account] = 0;
+      rdtcPerAccount[account] += rdtc;
+    });
+
     // Deduplicazione: per ogni coppia Account Name + Business Unit, tieni solo la prima riga
     const seen = new Set();
-    window.clientiData = rowsValide.filter(r => {
+    const deduplicati = rowsValide.filter(r => {
       const key = String(r['Account Name'] || '').trim() + '|||' + r['Business Unit'];
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
+
+    // Aggiungi somma RDTC a ogni riga deduplicata
+    window.clientiData = deduplicati.map(r => ({
+      ...r,
+      'RDTC Totale': rdtcPerAccount[String(r['Account Name'] || '').trim()] || 0
+    }));
 
     // Passa allo step 2
     setStep(2);
@@ -789,6 +804,9 @@ function mostraPopupSettore(settore, label) {
   overlay.id = 'popup-overlay';
   overlay.addEventListener('click', chiudiPopup);
 
+  const beneficioTotale = aziendeSettore.reduce((sum, r) => sum + (parseFloat(r['RDTC Totale']) || 0), 0);
+  const beneficioFormattato = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(beneficioTotale);
+
   // Crea modale
   const popup = document.createElement('div');
   popup.id = 'regione-popup';
@@ -797,6 +815,10 @@ function mostraPopupSettore(settore, label) {
       <div class="popup-header-left">
         <div class="popup-titolo">${label.toUpperCase()}</div>
         <div class="popup-count">${aziendeSettore.length} <span>aziende</span></div>
+      </div>
+      <div class="popup-header-right">
+        <div class="popup-beneficio-label">Beneficio</div>
+        <div class="popup-beneficio">${beneficioFormattato}</div>
       </div>
       <button class="popup-close">✕</button>
     </div>
@@ -955,7 +977,15 @@ function mostraPopupRicerca(azienda, query) {
         </div>
         <div class="ricerca-field">
           <span class="ricerca-label">Fatturato</span>
-          <span class="ricerca-value">${azienda['Turnover'] || '—'}</span>
+          <span class="ricerca-value">
+            ${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(parseFloat(azienda['Turnover']) || 0)}
+          </span>
+        </div>
+        <div class="ricerca-field">
+          <span class="ricerca-label">Beneficio</span>
+          <span class="ricerca-value" style="color:var(--accent)">
+            ${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(azienda['RDTC Totale'] || 0)}
+          </span>
         </div>
       </div>`;
   }
