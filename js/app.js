@@ -39,16 +39,83 @@ function setupCambiaVista() {
   }
 }
 
-function handleFile(file) {
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-    const sheetName = wb.SheetNames.includes('Sheet1') ? 'Sheet1' : wb.SheetNames[0];
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName]);
-    window.clientiData = rows.filter(r => {
-      const name = String(r['Account Name'] || '');
-      return !name.includes('SEGNALATORE') && !name.includes('PARTNERSHIP');
+function parseXLSAsHTML(arrayBuffer) {
+  const decoder = new TextDecoder('iso-8859-1');
+  const text = decoder.decode(arrayBuffer);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text, 'text/html');
+  const rows = doc.querySelectorAll('tr');
+
+  const headers = [];
+  rows[0].querySelectorAll('th').forEach(th => headers.push(th.textContent.trim()));
+
+  const result = [];
+  for (let i = 1; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('td');
+    if (cells.length === 0) continue;
+    const obj = {};
+    headers.forEach((h, idx) => {
+      obj[h] = cells[idx] ? cells[idx].textContent.trim() : '';
     });
+    result.push(obj);
+  }
+  return result;
+}
+
+async function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const ATECO_MAPPING = await (await fetch('assets/data/mapping.json')).json();
+
+    // Prova prima con parseXLSAsHTML, poi fallback a SheetJS
+    let rows;
+    try {
+      rows = parseXLSAsHTML(e.target.result);
+      if (!rows[0]['BU']) throw new Error('not HTML XLS');
+    } catch {
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+      const sheetName = wb.SheetNames[0];
+      rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' });
+    }
+
+    const rows_mapped = rows;
+
+    // Mapping BU
+    const BU_MAP = {
+      'cir': 'Business Performance',
+      'national tax': 'Business Performance',
+      'dvlt': 'Business Performance',
+      'perf env': 'Business Performance',
+      'lsu': 'Business Performance',
+      'grants': 'Business Performance',
+      'nrj it': 'ESG',
+      'hr performance': 'PCO',
+      'hr perf': 'PCO',
+    };
+
+    // Per ogni riga mappa il settore da Sub-industry e la BU
+    const rowsProcessed = rows_mapped.map(r => {
+      const subIndustry = String(r['Sub-industry'] || '').trim();
+      const buRaw = String(r['BU'] || '').trim().toLowerCase();
+      return {
+        ...r,
+        'Mapping': ATECO_MAPPING[subIndustry] || null,
+        'Business Unit': BU_MAP[buRaw] || null,
+      };
+    });
+
+    // Filtra righe senza BU mappata
+    const rowsValide = rowsProcessed.filter(r => r['Business Unit'] !== null);
+
+    // Deduplicazione: per ogni coppia Account Name + Business Unit, tieni solo la prima riga
+    const seen = new Set();
+    window.clientiData = rowsValide.filter(r => {
+      const key = String(r['Account Name'] || '').trim() + '|||' + r['Business Unit'];
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
     // Passa allo step 2
     setStep(2);
     document.getElementById('step2-back-wrap')?.remove();
@@ -56,11 +123,10 @@ function handleFile(file) {
     back2Wrap.id = 'step2-back-wrap';
     back2Wrap.innerHTML = `<button class="step3-back" onclick="setStep(1)">←</button>`;
     document.getElementById('upload-section').appendChild(back2Wrap);
+
     const counts = {};
     Object.keys(BU_CONFIG).forEach(bu => {
-      counts[bu] = window.clientiData.filter(r =>
-        String(r['Business Unit'] || '').trim() === bu
-      ).length;
+      counts[bu] = window.clientiData.filter(r => r['Business Unit'] === bu).length;
     });
     document.getElementById('count-esg').innerHTML = `<span class="bu-count" style="color:#7ebd4b">${counts['ESG'] || 0} aziende ESG</span>`;
     document.getElementById('count-bp').innerHTML = `<span class="bu-count" style="color:#FF6633">${counts['Business Performance'] || 0} aziende BP</span>`;
@@ -133,7 +199,7 @@ function renderAll() {
 function aggiornaLogo() {
   const logoWrap = document.querySelector('.leyton-logo');
   if (!logoWrap) return;
-  if (window.businessUnit === 'Energy') {
+  if (window.businessUnit === 'ESG') {
     logoWrap.innerHTML = `<img src="assets/leyton_esg_3.svg" alt="Leyton ESG" style="height:22px; width:auto; display:block;">`;
   } else {
     logoWrap.innerHTML = `<img src="assets/logo_leyton.svg" alt="Leyton" style="height:22px; width:auto; display:block;">`;
