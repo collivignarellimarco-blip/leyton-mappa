@@ -78,6 +78,8 @@ async function handleFile(file) {
       rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' });
     }
 
+    window.clientiDataRaw = rows; // tutte le righe, senza deduplicazione
+
     const rows_mapped = rows;
 
     // Mapping BU
@@ -390,7 +392,7 @@ function mostraPopupDimensione(key, label) {
   aziende.forEach(r => {
     const regione = String(r['Billing State/Province (text only)'] || 'Sconosciuta').trim().toUpperCase();
     const provincia = String(r['Province'] || 'Altre').trim();
-    const nome = String(r['Account Name'] || '').toUpperCase();
+    const nome = String(r['Account Name'] || '');
     if (!perRegione[regione]) perRegione[regione] = {};
     if (!perRegione[regione][provincia]) perRegione[regione][provincia] = [];
     perRegione[regione][provincia].push(nome);
@@ -400,7 +402,7 @@ function mostraPopupDimensione(key, label) {
   const bodyHtml = Object.keys(perRegione).sort().map(regione => {
     const province = Object.keys(perRegione[regione]).sort().map(prov => {
       const aziList = perRegione[regione][prov].sort().map(n =>
-        `<div class="popup-azienda"><span class="popup-slash">/</span> ${n}</div>`
+        `<div class="popup-azienda popup-azienda-link" data-account="${n.replace(/"/g, '&quot;')}"><span class="popup-slash">/</span> ${n.toUpperCase()}</div>`
       ).join('');
       return `<div class="popup-provincia">
         <div class="popup-provincia-nome">${prov}</div>
@@ -443,6 +445,9 @@ function mostraPopupDimensione(key, label) {
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
+  popup.querySelectorAll('.popup-azienda-link').forEach(el => {
+    el.addEventListener('click', () => apriDettaglioAzienda(el.dataset.account));
+  });
 }
 
 // ── SETTORI ─────────────────────────────────────
@@ -695,7 +700,7 @@ function mostraPopupRegione(nomeRegione) {
     aziende.forEach(a => {
       const iconaPath = ICONE_SETTORE[a.settore.toUpperCase()];
       const iconaHtml = iconaPath ? `<img src="assets/icons/${iconaPath}" class="popup-azienda-icon">` : `<div></div>`;
-      htmlBody += `<div class="popup-azienda">
+      htmlBody += `<div class="popup-azienda popup-azienda-link" data-account="${a.nome.replace(/"/g, '&quot;')}">
         ${iconaHtml}
         ${a.nome}
       </div>`;
@@ -738,6 +743,9 @@ function mostraPopupRegione(nomeRegione) {
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
+  popup.querySelectorAll('.popup-azienda-link').forEach(el => {
+    el.addEventListener('click', () => apriDettaglioAzienda(el.dataset.account));
+  });
 }
 
 function mostraPopupSettore(settore, label) {
@@ -786,7 +794,7 @@ function mostraPopupSettore(settore, label) {
       const aziende = byProvincia[prov].sort((a,b) => a.nome.localeCompare(b.nome));
       aziende.forEach(a => {
         htmlBody += `
-        <div class="popup-azienda"><span class="popup-slash">/</span> ${a.nome}</div>`;
+        <div class="popup-azienda popup-azienda-link" data-account="${a.nome.replace(/"/g, '&quot;')}"><span class="popup-slash">/</span> ${a.nome}</div>`;
       });
       htmlBody += `
       </div>`;
@@ -836,6 +844,9 @@ function mostraPopupSettore(settore, label) {
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
+  popup.querySelectorAll('.popup-azienda-link').forEach(el => {
+    el.addEventListener('click', () => apriDettaglioAzienda(el.dataset.account));
+  });
 }
 
 function mostraPopupInternazionali() {
@@ -874,7 +885,8 @@ function mostraPopupInternazionali() {
     const iconaHtml = icona
       ? `<img src="assets/icons/${icona}" class="popup-azienda-icon">`
       : `<span style="width:14px;display:inline-block"></span>`;
-    return `<div class="popup-azienda">${iconaHtml} ${String(r['Account Name'] || '').toUpperCase()}</div>`;
+    const accountName = String(r['Account Name'] || '');
+    return `<div class="popup-azienda popup-azienda-link" data-account="${accountName.replace(/"/g, '&quot;')}">${iconaHtml} ${accountName.toUpperCase()}</div>`;
   }).join('');
 
   function chiudiPopup() {
@@ -904,6 +916,9 @@ function mostraPopupInternazionali() {
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
+  popup.querySelectorAll('.popup-azienda-link').forEach(el => {
+    el.addEventListener('click', () => apriDettaglioAzienda(el.dataset.account));
+  });
 }
 
 function cercaAzienda() {
@@ -951,7 +966,7 @@ function mostraPopupRicerca(azienda, query) {
     popup.innerHTML = `
       <div class="popup-header">
         <div class="popup-header-left">
-          <div class="popup-titolo">${String(azienda['Account Name'] || '').toUpperCase()}</div>
+          <div class="popup-titolo popup-azienda-link" data-account="${String(azienda['Account Name'] || '').replace(/"/g, '&quot;')}" style="cursor:pointer">${String(azienda['Account Name'] || '').toUpperCase()}</div>
         </div>
         <button class="popup-close">✕</button>
       </div>
@@ -992,7 +1007,22 @@ function mostraPopupRicerca(azienda, query) {
             ${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(azienda['RDTC Totale'] || 0)}
           </span>
         </div>
-      </div>`;
+      </div>
+      ${(() => {
+        const accountName = String(azienda['Account Name'] || '').trim();
+        const opportunita = (window.clientiDataRaw || []).filter(r =>
+          String(r['Account Name'] || '').trim() === accountName
+        );
+        const righe = opportunita.map(r => `
+          <div class="dettaglio-row">
+            <span class="dettaglio-opp-nome">${r['Opportunity Name'] || '—'}</span>
+            <span class="dettaglio-opp-owner">${r['Opportunity Owner: Full Name'] || '—'}</span>
+          </div>`).join('');
+        return `<div class="popup-body" style="column-count:1; padding-top:0; border-top:1px solid #e0e5e9;">
+          <div class="dettaglio-opp-title" style="margin-bottom:8px">Opportunità (${opportunita.length})</div>
+          <div class="dettaglio-opp-list">${opportunita.length === 0 ? '<div class="dettaglio-empty">Nessuna opportunità trovata</div>' : righe}</div>
+        </div>`;
+      })()}`;
   }
 
   popup.querySelector('.popup-close').addEventListener('click', () => {
@@ -1002,6 +1032,8 @@ function mostraPopupRicerca(azienda, query) {
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
+  const linkEl = popup.querySelector('.popup-azienda-link[data-account]');
+  if (linkEl) linkEl.addEventListener('click', () => apriDettaglioAzienda(linkEl.dataset.account));
 }
 
 function setupRicerca() {
@@ -1056,4 +1088,77 @@ async function mostraPopupAteco() {
   popup.querySelector('.popup-close').addEventListener('click', chiudiPopup);
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
+}
+
+function apriDettaglioAzienda(accountName) {
+  document.getElementById('dettaglio-overlay')?.remove();
+
+  const opportunita = window.clientiDataRaw.filter(r =>
+    String(r['Account Name'] || '').trim() === accountName
+  );
+
+  const infoAzienda = window.clientiData.find(r =>
+    String(r['Account Name'] || '').trim() === accountName
+  ) || window.clientiDataRaw.find(r =>
+    String(r['Account Name'] || '').trim() === accountName
+  ) || {};
+  const info = infoAzienda;
+  const fmt = v => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(parseFloat(v) || 0);
+
+  const anagrafica = `
+    <div class="dettaglio-grid">
+      <span class="dettaglio-label">Partita IVA</span>
+      <span class="dettaglio-val">${info['Registered Number'] || '—'}</span>
+      <span class="dettaglio-label">Settore</span>
+      <span class="dettaglio-val">${info['Mapping'] || '—'}</span>
+      <span class="dettaglio-label">Dipendenti</span>
+      <span class="dettaglio-val">${info['Employees'] || '—'}</span>
+      <span class="dettaglio-label">Regione</span>
+      <span class="dettaglio-val">${info['Billing State/Province (text only)'] || '—'}</span>
+      <span class="dettaglio-label">Provincia</span>
+      <span class="dettaglio-val">${info['Province'] || '—'}</span>
+      <span class="dettaglio-label">Business Unit</span>
+      <span class="dettaglio-val">${info['Business Unit'] || '—'}</span>
+      <span class="dettaglio-label">Fatturato</span>
+      <span class="dettaglio-val">${fmt(info['Turnover'])}</span>
+      <span class="dettaglio-label">Beneficio RDTC</span>
+      <span class="dettaglio-val dettaglio-accent">${fmt(info['RDTC Totale'] || info['RDTC Amount'])}</span>
+    </div>`;
+
+  const righe = opportunita.map(r => `
+    <div class="dettaglio-row">
+      <span class="dettaglio-opp-nome">${r['Opportunity Name'] || '—'}</span>
+      <span class="dettaglio-opp-owner">${r['Opportunity Owner: Full Name'] || '—'}</span>
+    </div>`).join('');
+
+  const overlay = document.createElement('div');
+  overlay.id = 'dettaglio-overlay';
+
+  const popup = document.createElement('div');
+  popup.id = 'dettaglio-popup';
+  popup.innerHTML = `
+    <div class="dettaglio-header">
+      <div class="dettaglio-nome">${accountName.toUpperCase()}</div>
+      <button class="popup-close dettaglio-close-btn">✕</button>
+    </div>
+    <div class="dettaglio-body">
+      ${anagrafica}
+      <hr class="dettaglio-sep">
+      <div class="dettaglio-opp-title">Opportunità (${opportunita.length})</div>
+      <div class="dettaglio-opp-list">
+        ${opportunita.length === 0
+          ? '<div class="dettaglio-empty">Nessuna opportunità trovata</div>'
+          : righe}
+      </div>
+    </div>`;
+
+  const chiudiDettaglio = () => document.getElementById('dettaglio-overlay')?.remove();
+  overlay.addEventListener('click', chiudiDettaglio);
+  popup.addEventListener('click', e => e.stopPropagation());
+  popup.querySelector('.dettaglio-close-btn').addEventListener('click', chiudiDettaglio);
+
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+  const oppList = popup.querySelector('.dettaglio-opp-list');
+  if (oppList) oppList.scrollTop = 0;
 }

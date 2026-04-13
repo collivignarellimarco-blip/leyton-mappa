@@ -1227,3 +1227,152 @@ body {
   border-bottom: 1px solid #e0e5e9;
   white-space: nowrap;
 }
+
+.popup-azienda-link {
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.popup-azienda-link:hover {
+  color: var(--accent);
+  background: rgba(126,189,75,0.07);
+  border-radius: 4px;
+}
+
+#dettaglio-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 44, 73, 0.25);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#dettaglio-popup {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 44, 73, 0.25);
+  width: 900px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dettaglio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e0e5e9;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  flex-shrink: 0;
+}
+
+.dettaglio-nome {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dettaglio-body {
+  flex-shrink: 0;
+  overflow: visible;
+  padding: 20px 24px;
+}
+
+.dettaglio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+  align-items: baseline;
+  flex-shrink: 0;
+}
+
+.dettaglio-label {
+  font-family: 'Barlow', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #6a8093;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dettaglio-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #002c49;
+}
+
+.dettaglio-accent {
+  color: var(--accent);
+}
+
+.dettaglio-sep {
+  border: none;
+  border-top: 1px solid #e0e5e9;
+  margin: 18px 0 14px;
+  flex-shrink: 0;
+}
+
+.dettaglio-opp-title {
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #002c49;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.dettaglio-opp-list {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.dettaglio-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #eee;
+  gap: 16px;
+}
+
+.dettaglio-row:last-child {
+  border-bottom: none;
+}
+
+.dettaglio-opp-nome {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #002c49;
+  flex: 1;
+}
+
+.dettaglio-opp-owner {
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  color: #9cabb6;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dettaglio-empty {
+  padding: 24px 0;
+  text-align: center;
+  color: #9cabb6;
+  font-size: 13px;
+  font-family: 'Barlow', sans-serif;
+}
