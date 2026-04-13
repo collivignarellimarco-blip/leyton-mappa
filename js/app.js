@@ -214,11 +214,16 @@ function renderAll() {
 function aggiornaLogo() {
   const logoWrap = document.querySelector('.leyton-logo');
   if (!logoWrap) return;
+  let src = 'assets/logo_leyton.svg';
+  let alt = 'Leyton';
   if (window.businessUnit === 'ESG') {
-    logoWrap.innerHTML = `<img src="assets/leyton_esg_3.svg" alt="Leyton ESG" style="height:22px; width:auto; display:block;">`;
-  } else {
-    logoWrap.innerHTML = `<img src="assets/logo_leyton.svg" alt="Leyton" style="height:22px; width:auto; display:block;">`;
+    src = 'assets/leyton_esg_3.svg';
+    alt = 'Leyton ESG';
+  } else if (window.businessUnit === 'PCO') {
+    src = 'assets/logo_pco.svg';
+    alt = 'Leyton PCO';
   }
+  logoWrap.innerHTML = `<img src="${src}" alt="${alt}" style="height:32px; width:auto; display:block;">`;
 }
 
 // ── DIMENSIONI ──────────────────────────────────
@@ -1004,4 +1009,51 @@ function setupRicerca() {
   document.getElementById('search-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') cercaAzienda();
   });
+}
+
+async function mostraPopupAteco() {
+  const mapping = await fetch('assets/data/mapping.json').then(r => r.json());
+
+  document.getElementById('popup-overlay')?.remove();
+  document.getElementById('regione-popup')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'popup-overlay';
+  overlay.addEventListener('click', chiudiPopup);
+
+  const righe = Object.entries(mapping).map(([ateco, settore]) => `
+    <tr>
+      <td class="ateco-desc">${ateco}</td>
+      <td class="ateco-settore">${settore}</td>
+    </tr>`).join('');
+
+  const popup = document.createElement('div');
+  popup.id = 'regione-popup';
+  popup.innerHTML = `
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="popup-titolo">MAPPING ATECO</div>
+      </div>
+      <button class="popup-close">✕</button>
+    </div>
+    <div class="popup-body" style="column-count:1; padding:0">
+      <table class="ateco-table">
+        <thead>
+          <tr>
+            <th>Descrizione ATECO</th>
+            <th>Settore</th>
+          </tr>
+        </thead>
+        <tbody>${righe}</tbody>
+      </table>
+    </div>`;
+
+  function chiudiPopup() {
+    document.getElementById('popup-overlay')?.remove();
+    document.getElementById('regione-popup')?.remove();
+  }
+
+  popup.querySelector('.popup-close').addEventListener('click', chiudiPopup);
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
 }

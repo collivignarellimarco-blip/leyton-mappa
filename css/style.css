@@ -1165,3 +1165,65 @@ body {
   min-height: 16px;
 }
 
+#info-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 40px;
+  height: 40px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(0,44,73,0.3);
+  z-index: 100;
+  transition: transform 0.2s;
+}
+
+#info-btn:hover {
+  transform: scale(1.1);
+}
+
+.ateco-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+}
+
+.ateco-table thead th {
+  background: #002c49;
+  color: white;
+  padding: 10px 16px;
+  text-align: left;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: sticky;
+  top: 0;
+}
+
+.ateco-table tbody tr:nth-child(even) {
+  background: #f3f4f6;
+}
+
+.ateco-table tbody tr:hover {
+  background: #e8f4fd;
+}
+
+.ateco-desc {
+  padding: 8px 16px;
+  color: #526d81;
+  border-bottom: 1px solid #e0e5e9;
+}
+
+.ateco-settore {
+  padding: 8px 16px;
+  color: #002c49;
+  font-weight: 700;
+  border-bottom: 1px solid #e0e5e9;
+  white-space: nowrap;
+}
