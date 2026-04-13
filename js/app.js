@@ -2,7 +2,7 @@ const BU_CONFIG = {
   'ESG':                  { colore: '#7ebd4b', label: 'ESG' },
   'Business Performance': { colore: '#FF6633', label: 'Business Performance' },
   'PCO':                  { colore: '#EE6784', label: 'PCO' },
-  'IP':                   { colore: '#FBB61A', label: 'IP' },
+  'ALL BU':               { colore: '#002c49', label: 'ALL BU' },
 };
 
 window.clientiData = [];
@@ -148,7 +148,7 @@ async function handleFile(file) {
     document.getElementById('count-esg').innerHTML = `<span class="bu-count" style="color:#7ebd4b">${counts['ESG'] || 0} aziende ESG</span>`;
     document.getElementById('count-bp').innerHTML = `<span class="bu-count" style="color:#FF6633">${counts['Business Performance'] || 0} aziende BP</span>`;
     document.getElementById('count-pco').innerHTML = `<span class="bu-count" style="color:#EE6784">${counts['PCO'] || 0} aziende PCO</span>`;
-    document.getElementById('count-ip').innerHTML = `<span class="bu-count" style="color:#FBB61A">${counts['IP'] || 0} aziende IP</span>`;
+    document.getElementById('count-allbu').innerHTML = `<span class="bu-count" style="color:#002c49">${window.clientiData.length} aziende (tutte le BU)</span>`;
   };
   reader.readAsArrayBuffer(file);
 }
@@ -156,9 +156,13 @@ async function handleFile(file) {
 function selezionaBU(bu) {
   window.businessUnit = bu;
   // Filtra i dati per Business Unit
-  window.clientiFiltrati = window.clientiData.filter(r =>
-    String(r['Business Unit'] || '').trim() === bu
-  );
+  if (bu === 'ALL BU') {
+    window.clientiFiltrati = [...window.clientiData];
+  } else {
+    window.clientiFiltrati = window.clientiData.filter(r =>
+      String(r['Business Unit'] || '').trim() === bu
+    );
+  }
   // Passa allo step 3
   setStep(3);
   const colore = BU_CONFIG[bu]?.colore || '#7ebd4b';
@@ -224,6 +228,9 @@ function aggiornaLogo() {
   } else if (window.businessUnit === 'PCO') {
     src = 'assets/logo_pco.svg';
     alt = 'Leyton PCO';
+  } else if (window.businessUnit === 'ALL BU') {
+    src = 'assets/logo_leyton.svg';
+    alt = 'Leyton';
   }
   logoWrap.innerHTML = `<img src="${src}" alt="${alt}" style="height:32px; width:auto; display:block;">`;
 }
@@ -963,6 +970,8 @@ function mostraPopupRicerca(azienda, query) {
       </div>`;
   } else {
     const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const _anRicerca = String(azienda['Account Name'] || '').trim();
+    const buListRicerca = [...new Set((window.clientiData || []).filter(r => String(r['Account Name'] || '').trim() === _anRicerca).map(r => String(r['Business Unit'] || '').trim()).filter(Boolean))].join(', ') || '—';
     popup.innerHTML = `
       <div class="popup-header">
         <div class="popup-header-left">
@@ -993,7 +1002,7 @@ function mostraPopupRicerca(azienda, query) {
         </div>
         <div class="ricerca-field">
           <span class="ricerca-label">Business Unit</span>
-          <span class="ricerca-value" style="color:${accent}; font-weight:700;">${azienda['Business Unit'] || '—'}</span>
+          <span class="ricerca-value" style="color:${accent}; font-weight:700;">${buListRicerca}</span>
         </div>
         <div class="ricerca-field">
           <span class="ricerca-label">Fatturato</span>
@@ -1103,6 +1112,14 @@ function apriDettaglioAzienda(accountName) {
     String(r['Account Name'] || '').trim() === accountName
   ) || {};
   const info = infoAzienda;
+
+  const buList = [...new Set(
+    window.clientiData
+      .filter(r => String(r['Account Name'] || '').trim() === accountName)
+      .map(r => String(r['Business Unit'] || '').trim())
+      .filter(Boolean)
+  )].join(', ') || '—';
+
   const fmt = v => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(parseFloat(v) || 0);
 
   const anagrafica = `
@@ -1118,7 +1135,7 @@ function apriDettaglioAzienda(accountName) {
       <span class="dettaglio-label">Provincia</span>
       <span class="dettaglio-val">${info['Province'] || '—'}</span>
       <span class="dettaglio-label">Business Unit</span>
-      <span class="dettaglio-val">${info['Business Unit'] || '—'}</span>
+      <span class="dettaglio-val">${buList}</span>
       <span class="dettaglio-label">Fatturato</span>
       <span class="dettaglio-val">${fmt(info['Turnover'])}</span>
       <span class="dettaglio-label">Beneficio RDTC</span>
