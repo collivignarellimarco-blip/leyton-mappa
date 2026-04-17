@@ -66,6 +66,11 @@ async function handleFile(file) {
   const reader = new FileReader();
   reader.onload = async function(e) {
     const ATECO_MAPPING = await (await fetch('assets/data/mapping.json')).json();
+    const mappingPerCodice = {};
+    for (const [key, val] of Object.entries(ATECO_MAPPING)) {
+      const m = key.match(/^(\d{2})/);
+      if (m) mappingPerCodice[m[1]] = val;
+    }
 
     // Prova prima con parseXLSAsHTML, poi fallback a SheetJS
     let rows;
@@ -98,10 +103,11 @@ async function handleFile(file) {
     // Per ogni riga mappa il settore da Sub-industry e la BU
     const rowsProcessed = rows_mapped.map(r => {
       const subIndustry = String(r['Sub-industry'] || '').trim();
+      const codice2 = (subIndustry.match(/^(\d{2})/) || [])[1] || null;
       const buRaw = String(r['BU'] || '').trim().toLowerCase();
       return {
         ...r,
-        'Mapping': ATECO_MAPPING[subIndustry] || null,
+        'Mapping': (codice2 ? mappingPerCodice[codice2] : null) || null,
         'Business Unit': BU_MAP[buRaw] || null,
       };
     });
