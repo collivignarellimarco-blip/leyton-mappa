@@ -400,6 +400,9 @@ function mostraPopupDimensione(key, label) {
     return false;
   });
 
+  const beneficioTotaleDim = aziende.reduce((sum, r) => sum + (parseFloat(r['RDTC Totale']) || 0), 0);
+  const beneficioFormattaDim = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(beneficioTotaleDim);
+
   // Raggruppa per regione → provincia (stesso schema modale settori)
   const perRegione = {};
   aziende.forEach(r => {
@@ -442,6 +445,10 @@ function mostraPopupDimensione(key, label) {
       <div class="popup-header-left">
         <div class="popup-titolo">${label}</div>
         <div class="popup-count">${aziende.length} <span>aziende</span></div>
+      </div>
+      <div class="popup-header-right">
+        <div class="popup-beneficio-label">Beneficio</div>
+        <div class="popup-beneficio">${beneficioFormattaDim}</div>
       </div>
       <button class="popup-close">✕</button>
     </div>
@@ -685,6 +692,9 @@ function mostraPopupRegione(nomeRegione) {
 
   const provinceOrdinate = Object.keys(byProvincia).sort((a,b) => a.localeCompare(b));
 
+  const beneficioTotaleRegione = aziendeRegione.reduce((sum, r) => sum + (parseFloat(r['RDTC Totale']) || 0), 0);
+  const beneficioFormattaRegione = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(beneficioTotaleRegione);
+
   const ICONE_SETTORE = {
     'ALIMENTARE':      'Elenco/elenco_alimentare.svg',
     'AUTOMOTIVE':      'Elenco/elenco_automotive.svg',
@@ -744,6 +754,10 @@ function mostraPopupRegione(nomeRegione) {
       <div class="popup-header-left">
         <div class="popup-titolo">${nomeRegione.toUpperCase()}</div>
         <div class="popup-count">${aziendeRegione.length} <span>aziende</span></div>
+      </div>
+      <div class="popup-header-right">
+        <div class="popup-beneficio-label">Beneficio</div>
+        <div class="popup-beneficio">${beneficioFormattaRegione}</div>
       </div>
       <button class="popup-close">✕</button>
     </div>
